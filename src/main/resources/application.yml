@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+---
+spring:
+  profiles: development
+
+influxdb:
+  url: ${INFLUXDB_URL}
+
+logging:
+  level:
+    com.rackspacecloud: debug
+
+---
+spring:
+  profiles: production
+
+influxdb:
+  url: ${INFLUXDB_URL}
+
+logging:
+  level:
+    com.rackspacecloud: info
