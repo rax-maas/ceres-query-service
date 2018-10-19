@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class QueryServiceConfiguration {
-    @Value("${influxdb.url}")
+    @Value("${database.url}")
     private String influxdbUrl;
 
     @Bean

@@ -5,8 +5,8 @@ server:
 spring:
   profiles: development
 
-influxdb:
-  url: ${INFLUXDB_URL}
+database:
+  url: "http://localhost:8086"
 
 logging:
   level:
@@ -16,7 +16,7 @@ logging:
 spring:
   profiles: production
 
-influxdb:
+database:
   url: ${INFLUXDB_URL}
 
 logging:

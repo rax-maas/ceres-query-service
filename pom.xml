@@ -59,6 +59,18 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>0.9.11</version>
+				<configuration>
+					<to>
+						<image>749833639264.dkr.ecr.us-east-1.amazonaws.com/metrics-query-service</image>
+					</to>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
