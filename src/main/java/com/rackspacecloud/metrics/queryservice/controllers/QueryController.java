@@ -4,6 +4,7 @@ import com.rackspacecloud.metrics.queryservice.domains.QueryDomainInput;
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
 import com.rackspacecloud.metrics.queryservice.models.QueryInput;
 import com.rackspacecloud.metrics.queryservice.services.IQueryService;
+import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +46,14 @@ public class QueryController {
         QueryDomainInput domainInput = new QueryDomainInput();
         domainInput.setQueryString(queryInput.getQueryString());
         return domainInput;
+    }
+
+    @RequestMapping(
+            value = "/query",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public QueryResult query(final @RequestParam("db") String dbName, final @RequestParam("q") String queryString){
+        return queryService.query(dbName, queryString);
     }
 }

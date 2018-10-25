@@ -87,4 +87,12 @@ public class QueryService implements IQueryService {
         // TODO: Temporary routing solution.
         return ((tenantId.hashCode())%2 == 0) ? 80 : 81;
     }
+
+    public QueryResult query(String dbName, String queryString){
+        Query query = new Query(queryString, dbName);
+
+        QueryResult queryResult = influxDB.query(query);
+
+        return queryResult;
+    }
 }
