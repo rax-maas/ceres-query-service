@@ -2,7 +2,7 @@ package com.rackspacecloud.metrics.queryservice.services;
 
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainInput;
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
-import com.rackspacecloud.metrics.queryservice.models.TenantRoutes;
+import com.rackspacecloud.metrics.queryservice.models.TenantRoute;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -40,18 +40,17 @@ public class QueryService implements IQueryService {
         if(tenantId == null || tenantId.trim() == "")
             throw new IllegalArgumentException("tenantId can't be null, empty or all whitespaces");
 
-        // Get InfluxDB Url from TenantRoutingService
-        String influxdbUrl = getRouteForGivenTenant(tenantId);
+        // Get InfluxDB Url and database name from TenantRoutingService
+        TenantRoute route = getRouteForGivenTenant(tenantId);
 
         String queryString = input.getQueryString().trim();
 
         if(!isValidQueryString(queryString))
             throw new IllegalArgumentException(String.format("Invalid query string [%s]", queryString));
 
-        //TODO: Remove coupling of database name with tenantId
-        Query query = new Query(queryString, "db_" + tenantId);
+        Query query = new Query(queryString, route.getDatabaseName());
 
-        QueryResult queryResult = urlInfluxDBInstanceMap.get(influxdbUrl).query(query);
+        QueryResult queryResult = urlInfluxDBInstanceMap.get(route.getPath()).query(query);
 
         if(queryResult.hasError()){
             String error = queryResult.getError();
@@ -88,10 +87,9 @@ public class QueryService implements IQueryService {
                 Pattern.matches(whereRegex, stringToMatch));
     }
 
-    private String getRouteForGivenTenant(String tenantId) {
+    private TenantRoute getRouteForGivenTenant(String tenantId) {
         String requestUrl = String.format("%s/%s", tenantRoutingServiceUrl, tenantId);
-        TenantRoutes tenantRoutes = restTemplate.getForObject(requestUrl, TenantRoutes.class);
-        return tenantRoutes.getPath();
+        return restTemplate.getForObject(requestUrl, TenantRoute.class);
     }
 
     private String getRouteForGivenDatabase(String dbName) {
