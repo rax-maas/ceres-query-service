@@ -5,8 +5,20 @@ server:
 spring:
   profiles: development
 
+rest-template:
+  request-config:
+    connection-request-timeout: 120000  # timeout when requesting a connection from the connection manager
+    connect-timeout: 120000             # timeout until a connection is established
+    socket-timeout: 120000              # timeout for waiting for data
+
+  pooling-http-client-connection-manager:
+    max-total: 20 # Max number of connection to pool
+
 database:
-  url: "http://localhost:8086"
+  urls: "http://localhost:8086"
+
+tenant-routing-service:
+  url: "http://adacb8608d9ae11e8bf850abf9b20734-2011357652.us-east-1.elb.amazonaws.com:8080"
 
 logging:
   level:
@@ -16,8 +28,25 @@ logging:
 spring:
   profiles: production
 
+rest-template:
+  request-config:
+    # timeout when requesting a connection from the connection manager
+    connection-request-timeout: ${REST_TEMPLATE_CONNECTION_REQUEST_TIMEOUT}
+
+    # timeout until a connection is established
+    connect-timeout: ${REST_TEMPLATE_CONNECT_TIMEOUT}
+
+    # timeout for waiting for data
+    socket-timeout: ${REST_TEMPLATE_SOCKET_TIMEOUT}
+
+  pooling-http-client-connection-manager:
+    max-total: ${REST_TEMPLATE_CONNECTION_POOLING_MAX} # Max number of connection to pool
+
 database:
-  url: ${INFLUXDB_URL}
+  urls: ${INFLUXDB_URLS}
+
+tenant-routing-service:
+  url: ${TENANT_ROUTING_SERVICE_URL}
 
 logging:
   level:

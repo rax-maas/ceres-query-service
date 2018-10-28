@@ -2,48 +2,56 @@ package com.rackspacecloud.metrics.queryservice.services;
 
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainInput;
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
+import com.rackspacecloud.metrics.queryservice.models.TenantRoutes;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
 public class QueryService implements IQueryService {
-    private InfluxDB influxDB;
+    private Map<String, InfluxDB> urlInfluxDBInstanceMap;
 
-    @Value("${influxdb.url}")
-    private String influxdbUrl;
+    @Value("${tenant-routing-service.url}")
+    String tenantRoutingServiceUrl;
+
+    private RestTemplate restTemplate;
 
     @Autowired
-    public QueryService(InfluxDB influxDB){
-        this.influxDB = influxDB;
-        this.influxDB.setLogLevel(InfluxDB.LogLevel.BASIC);
-    }
+    public QueryService(Map<String, InfluxDB> urlInfluxDBInstanceMap, RestTemplate restTemplate){
+        this.urlInfluxDBInstanceMap = urlInfluxDBInstanceMap;
+        for(String key : this.urlInfluxDBInstanceMap.keySet()){
+            this.urlInfluxDBInstanceMap.get(key).setLogLevel(InfluxDB.LogLevel.BASIC);
+        }
 
+        this.restTemplate = restTemplate;
+    }
 
     @Override
     public List<QueryDomainOutput> find(final String tenantId, final QueryDomainInput input) throws Exception {
         if(tenantId == null || tenantId.trim() == "")
             throw new IllegalArgumentException("tenantId can't be null, empty or all whitespaces");
 
-        //TODO: get the port# using tenantRoutingService
-        //String pathToRepository = "InfluxdbUrlToConnectTo";
-        String pathToRepository = influxdbUrl;
+        // Get InfluxDB Url from TenantRoutingService
+        String influxdbUrl = getRouteForGivenTenant(tenantId);
 
         String queryString = input.getQueryString().trim();
 
         if(!isValidQueryString(queryString))
             throw new IllegalArgumentException(String.format("Invalid query string [%s]", queryString));
 
-        Query query = new Query(queryString, tenantId);
+        //TODO: Remove coupling of database name with tenantId
+        Query query = new Query(queryString, "db_" + tenantId);
 
-        QueryResult queryResult = influxDB.query(query);
+        QueryResult queryResult = urlInfluxDBInstanceMap.get(influxdbUrl).query(query);
 
         if(queryResult.hasError()){
             String error = queryResult.getError();
@@ -80,19 +88,25 @@ public class QueryService implements IQueryService {
                 Pattern.matches(whereRegex, stringToMatch));
     }
 
-    private int getRoute(String tenantId) {
-//        // TODO: Work on routing given tenant to specific Influxdb instance
-//        return (databaseCountForTest < (MAX_DATABASE_COUNT_FOR_TEST / 2)) ? 81 : 80;
+    private String getRouteForGivenTenant(String tenantId) {
+        String requestUrl = String.format("%s/%s", tenantRoutingServiceUrl, tenantId);
+        TenantRoutes tenantRoutes = restTemplate.getForObject(requestUrl, TenantRoutes.class);
+        return tenantRoutes.getPath();
+    }
 
-        // TODO: Temporary routing solution.
-        return ((tenantId.hashCode())%2 == 0) ? 80 : 81;
+    private String getRouteForGivenDatabase(String dbName) {
+        //TODO: call tenantRoutingService
+        return "http://data-influxdb:8086";
+//        return "http://localhost:8086";
     }
 
     public QueryResult query(String dbName, String queryString){
         Query query = new Query(queryString, dbName);
 
-        QueryResult queryResult = influxDB.query(query);
+        // Get InfluxDB Url from TenantRoutingService
+        String influxdbUrl = getRouteForGivenDatabase(dbName);
 
+        QueryResult queryResult = urlInfluxDBInstanceMap.get(influxdbUrl).query(query);
         return queryResult;
     }
 }
