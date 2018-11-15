@@ -18,7 +18,7 @@ database:
   urls: "http://localhost:8086"
 
 tenant-routing-service:
-  url: "http://adacb8608d9ae11e8bf850abf9b20734-2011357652.us-east-1.elb.amazonaws.com:8080"
+  url: "dummy"
 
 logging:
   level:

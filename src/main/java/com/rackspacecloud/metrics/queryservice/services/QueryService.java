@@ -88,6 +88,15 @@ public class QueryService implements IQueryService {
     }
 
     private TenantRoute getRouteForGivenTenant(String tenantId) {
+        //TODO: remove this stub and find a better solution
+        if(tenantRoutingServiceUrl.equalsIgnoreCase("dummy")){
+            TenantRoute temp = new TenantRoute();
+            temp.setPath("http://localhost:8086");
+            temp.setDatabaseName("db_" + tenantId);
+
+            return temp;
+        }
+
         String requestUrl = String.format("%s/%s", tenantRoutingServiceUrl, tenantId);
         return restTemplate.getForObject(requestUrl, TenantRoute.class);
     }
