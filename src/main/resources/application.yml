@@ -24,6 +24,24 @@ logging:
   level:
     com.rackspacecloud: debug
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "health,jolokia,metrics"
+    metrics:
+        export:
+            statsd:
+                flavor: ${statsd.flavor:telegraf}
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8125}
+                enabled: ${statsd.enabled:false}
+            influx:
+                db: telemetry-ambassador
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8086}
+                enabled: ${influx.enabled:false}
+
 ---
 spring:
   profiles: production
