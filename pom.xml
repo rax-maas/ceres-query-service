@@ -24,6 +24,9 @@
 		<java.version>1.8</java.version>
         <http-client.version>4.5.5</http-client.version>
 		<influxdb-java.version>2.13</influxdb-java.version>
+
+		<!-- Pass on right value to publish the docker image to the registry -->
+		<docker.image.prefix>gcr.io/PROJECT_ID</docker.image.prefix>
 	</properties>
 
 	<dependencies>
@@ -78,20 +81,36 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>0.9.11</version>
-				<configuration>
-					<to>
-						<image>749833639264.dkr.ecr.us-east-1.amazonaws.com/metrics-query-service</image>
-					</to>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>docker</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.google.cloud.tools</groupId>
+						<artifactId>jib-maven-plugin</artifactId>
+						<version>0.9.11</version>
+						<configuration>
+							<to>
+								<image>${docker.image.prefix}/metrics-query-service</image>
+							</to>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 
 </project>
