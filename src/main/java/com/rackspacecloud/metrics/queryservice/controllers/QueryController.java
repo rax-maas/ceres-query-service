@@ -50,7 +50,7 @@ public class QueryController {
     }
 
     @RequestMapping(
-            value = "/tenant/query",
+            value = "/query",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

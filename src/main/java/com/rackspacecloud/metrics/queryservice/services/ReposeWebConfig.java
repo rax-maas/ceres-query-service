@@ -32,7 +32,7 @@ public class ReposeWebConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.addFilterBefore(new ReposeHeaderFilter(), UsernamePasswordAuthenticationFilter.class);
-
+        http.csrf().disable();
         http.antMatcher("/**")
                 .authorizeRequests()
                 .anyRequest().authenticated();
