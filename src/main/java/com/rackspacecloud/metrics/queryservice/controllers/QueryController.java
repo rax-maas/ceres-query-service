@@ -8,8 +8,7 @@ import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
+import org.springframework.security.access.annotation.Secured;
 import java.util.List;
 
 @RestController
@@ -25,6 +24,8 @@ public class QueryController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    // Note Confirm this is the correct role for this method:
+    @Secured({"ROLE_COMPUTE_DEFAULT"})
     public List<QueryDomainOutput> find(
             @PathVariable final String tenantId,
             @RequestBody final QueryInput queryInput) throws Exception {
@@ -53,6 +54,7 @@ public class QueryController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Secured({"ROLE_COMPUTE_DEFAULT"})
     public QueryResult query(final @RequestParam("db") String dbName, final @RequestParam("q") String queryString){
         return queryService.query(dbName, queryString);
     }
