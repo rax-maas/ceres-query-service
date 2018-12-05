@@ -47,8 +47,6 @@ public class ReposeHeaderFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-        System.out.println("This is running");
-        Enumeration<String> thing = servletRequest.getParameterNames();
         if (servletRequest instanceof HttpServletRequest) {
             final HttpServletRequest req = (HttpServletRequest) servletRequest;
 

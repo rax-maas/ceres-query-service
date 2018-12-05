@@ -16,16 +16,18 @@
  *
  */
 
-package com.rackspacecloud.metrics.queryservice.services;
+package com.rackspacecloud.metrics.queryservice.configuration;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
 @Configuration
+@ConfigurationProperties("repose-security")
 @EnableGlobalMethodSecurity(
         prePostEnabled = true,
-        securedEnabled = true,
+        securedEnabled = false,
         jsr250Enabled = true)
 public class MethodSecurityConfig
         extends GlobalMethodSecurityConfiguration {
