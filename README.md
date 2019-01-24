@@ -37,9 +37,9 @@ This service provides functionality to query metrics data.
   ```
   - `filter` node <br />
     This node construct the `WHERE` clause for the query. `from` and `to` are mandatory sub-nodes. `from` defines the start time and `to` defines the end time. Together they create the time window for the metrics search.
-    - `tags` sub-node
+    - `tags` sub-node <br />
       This helps you filter measurements for the specified tags. "tag1" and "tag2" are the tags that I am trying to restrict my search on. "tag1" contains two values "tag1-value-1" and "tag1-value-2". **_Here ALL of the values in the array are `OR`ed in the resulting `WHERE` clause. This is the only place where `OR` operation is applied. Rest of the places in the `WHERE` clause, it's always `AND`ed._** "tag2" contains only one value "tag2-value".
-    - `fields` sub-node
+    - `fields` sub-node <br />
       This helps you filter measurements for the specified fields. "field1", "field2", and "field3" are the fields that I am restricting my search on. "field1" contains two values. Here, in contrast to what you saw in `tags`, these values are `AND`ed in the resulting `WHERE` clause.
   - `select` node <br />
     This node creates the `SELECT` portion of the query. You can add the columns that you want to see in the array for `columns` key.
