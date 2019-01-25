@@ -17,9 +17,6 @@ rest-template:
 database:
   urls: "http://localhost:8086"
 
-tenant-routing-service:
-  url: "dummy"
-
 logging:
   level:
     com.rackspacecloud: debug
@@ -63,9 +60,25 @@ rest-template:
 database:
   urls: ${INFLUXDB_URLS}
 
-tenant-routing-service:
-  url: ${TENANT_ROUTING_SERVICE_URL}
-
 logging:
   level:
     com.rackspacecloud: info
+
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "health,jolokia,metrics"
+    metrics:
+        export:
+            statsd:
+                flavor: ${statsd.flavor:telegraf}
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8125}
+                enabled: ${statsd.enabled:false}
+            influx:
+                db: telemetry-ambassador
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8086}
+                enabled: ${influx.enabled:false}

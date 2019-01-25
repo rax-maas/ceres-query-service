@@ -3,7 +3,7 @@ package com.rackspacecloud.metrics.queryservice.controllers;
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainInput;
 import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
 import com.rackspacecloud.metrics.queryservice.models.QueryInput;
-import com.rackspacecloud.metrics.queryservice.services.QueryService;
+import com.rackspacecloud.metrics.queryservice.services.QueryServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +30,7 @@ public class QueryControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    QueryService queryService;
+    QueryServiceImpl queryServiceImpl;
 
     @InjectMocks
     QueryController controller;
@@ -50,10 +49,10 @@ public class QueryControllerTest {
 
         domainOutputs.add(output);
 
-        when(queryService.find(anyString(), any(QueryDomainInput.class))).thenReturn(domainOutputs);
+        when(queryServiceImpl.find(anyString(), any(QueryDomainInput.class))).thenReturn(domainOutputs);
 
-        List<QueryDomainOutput> outputs = controller.find("1234", new QueryInput());
+        List<?> outputs = controller.find("1234", new QueryInput());
 
-        Assert.assertEquals("test", outputs.get(0).getName());
+        Assert.assertEquals("test", ((QueryDomainOutput) outputs.get(0)).getName());
     }
 }

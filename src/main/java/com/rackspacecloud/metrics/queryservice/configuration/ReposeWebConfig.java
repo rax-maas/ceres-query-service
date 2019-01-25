@@ -16,8 +16,9 @@
  *
  */
 
-package com.rackspacecloud.metrics.queryservice.services;
+package com.rackspacecloud.metrics.queryservice.configuration;
 
+import com.rackspacecloud.metrics.queryservice.services.ReposeHeaderFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
