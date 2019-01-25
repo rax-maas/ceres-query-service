@@ -185,3 +185,97 @@ This endpoint is used for free form query. Use it only when you don't have other
 	  }
   ]
   ```
+### Endpoint /{tenantId}/measurements
+This endpoint provides all of the measurements for the given tenantId.
+- Method: `GET`
+- Response:
+  ```
+  [
+  	"agent_filesystem"
+  ]
+  ```
+### Endpoint /{tenantId}/measurements/{measurement}/tags
+This endpoint provides all of the tags in a given measurement.
+- Method: `GET`
+- Response:
+  ```
+  [
+	  "collectionlabel",
+	  "devicelabel",
+	  "entitysystemid",
+	  "filesystem_avail_unit",
+	  "filesystem_files_unit",
+	  "filesystem_free_files_unit",
+	  "filesystem_free_unit",
+	  "filesystem_total_unit",
+	  "filesystem_used_unit",
+	  "monitoringsystem",
+	  "systemaccountid"
+  ]
+  ```
+### Endpoint /{tenantId}/measurements/{measurement}/fields
+This endpoint provides all of the fields in a given measurement.
+- Method: `GET`
+- Response:
+  ```
+  [
+	  {
+	    "fieldKey": "filesystem_avail",
+	    "fieldType": "float"
+	  },
+	  {
+	    "fieldKey": "filesystem_files",
+	    "fieldType": "float"
+	  },
+	  {
+	    "fieldKey": "filesystem_free",
+	    "fieldType": "float"
+	  },
+	  {
+	    "fieldKey": "filesystem_free_files",
+	    "fieldType": "float"
+	  },
+	  {
+	    "fieldKey": "filesystem_total",
+	    "fieldType": "float"
+	  },
+	  {
+	    "fieldKey": "filesystem_used",
+	    "fieldType": "float"
+	  }
+  ]
+  ```
+### Endpoint /{tenantId}/measurements/{measurement}/tags/tag1,tag2/values
+This endpoint provides all of the values for given tags in a given measurement. Notice that you can pass on multiple comma-delimitted tags to get their values. For example: `/tenant1/measurements/agent_filesystem/tags/devicelabel,entitysystemid/values`
+- Method: `GET`
+- Response:
+  ```
+  [
+	  {
+	    "value": "dummy-device-label-0",
+	    "key": "devicelabel"
+	  },
+	  {
+	    "value": "dummy-device-label-1",
+	    "key": "devicelabel"
+	  },
+	  ...
+	  {
+	    "value": "dummy-device-label-9",
+	    "key": "devicelabel"
+	  },
+	  {
+	    "value": "dummy-entity-id-0",
+	    "key": "entitysystemid"
+	  },
+	  ...
+	  {
+	    "value": "dummy-entity-id-4",
+	    "key": "entitysystemid"
+	  },
+	  {
+	    "value": "dummy-entity-id-9",
+	    "key": "entitysystemid"
+	  }
+  ]
+  ```
