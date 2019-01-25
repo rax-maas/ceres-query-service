@@ -128,3 +128,60 @@ WHERE (time > 1548301512000000000 AND time < 1548301623000000000)
   }
 ]
 ```
+### Endpoint /{tenantId}
+This endpoint is used for free form query. Use it only when you don't have other option. You need to write your own InfluxQL query to fetch any data. <br />
+- Method: `POST`
+- Request Payload:
+  ```
+  {
+	"queryString": "select * from agent_filesystem where time > now() - 5d"
+  }
+  ```
+  - `queryString` is obvious. Create your own `InfluxQL` query string and pass it on.
+
+- Response: <br />
+  ```
+  [
+	  {
+	    "systemaccountid": "dummy-account-id-0",
+	    "filesystem_free_files": 5399.0,
+	    "monitoringsystem": "MAAS",
+	    "filesystem_total": 8839.0,
+	    "filesystem_free_unit": "KILOBYTES",
+	    "filesystem_total_unit": "KILOBYTES",
+	    "filesystem_used_unit": "KILOBYTES",
+	    "devicelabel": "dummy-device-label-0",
+	    "filesystem_avail_unit": "KILOBYTES",
+	    "filesystem_files": 12393.0,
+	    "entitysystemid": "dummy-entity-id-0",
+	    "filesystem_used": 32073.0,
+	    "collectionlabel": "dummy-collection-label",
+	    "filesystem_free_files_unit": "free_files",
+	    "filesystem_avail": 14505.0,
+	    "filesystem_free": 8651.0,
+	    "time": "2019-01-24T03:46:52Z",
+	    "filesystem_files_unit": "files"
+	  },
+	  ...
+	  {
+	    "systemaccountid": "dummy-account-id-4",
+	    "filesystem_free_files": 44985.0,
+	    "monitoringsystem": "MAAS",
+	    "filesystem_total": 1806.0,
+	    "filesystem_free_unit": "KILOBYTES",
+	    "filesystem_total_unit": "KILOBYTES",
+	    "filesystem_used_unit": "KILOBYTES",
+	    "devicelabel": "dummy-device-label-4",
+	    "filesystem_avail_unit": "KILOBYTES",
+	    "filesystem_files": 23525.0,
+	    "entitysystemid": "dummy-entity-id-4",
+	    "filesystem_used": 21448.0,
+	    "collectionlabel": "dummy-collection-label",
+	    "filesystem_free_files_unit": "free_files",
+	    "filesystem_avail": 39829.0,
+	    "filesystem_free": 4633.0,
+	    "time": "2019-01-24T03:46:53Z",
+	    "filesystem_files_unit": "files"
+	  }
+  ]
+  ```
