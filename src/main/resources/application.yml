@@ -1,6 +1,47 @@
 server:
   port: 8080
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "health,jolokia,metrics"
+    metrics:
+        export:
+            statsd:
+                flavor: ${statsd.flavor:telegraf}
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8125}
+                enabled: ${statsd.enabled:false}
+            influx:
+                db: telemetry-ambassador
+                host: ${statsd.host:localhost}
+                port: ${statsd.port:8086}
+                enabled: ${influx.enabled:false}
+        web:
+          server:
+            auto-time-requests: true
+
+---
+spring:
+  profiles: test
+
+rest-template:
+  request-config:
+    connection-request-timeout: 120000  # timeout when requesting a connection from the connection manager
+    connect-timeout: 120000             # timeout until a connection is established
+    socket-timeout: 120000              # timeout for waiting for data
+
+  pooling-http-client-connection-manager:
+    max-total: 20 # Max number of connection to pool
+
+database:
+  urls: "http://localhost:8086"
+
+logging:
+  level:
+    com.rackspacecloud: debug
+
 ---
 spring:
   profiles: development
@@ -20,24 +61,6 @@ database:
 logging:
   level:
     com.rackspacecloud: debug
-
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "health,jolokia,metrics"
-    metrics:
-        export:
-            statsd:
-                flavor: ${statsd.flavor:telegraf}
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8125}
-                enabled: ${statsd.enabled:false}
-            influx:
-                db: telemetry-ambassador
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8086}
-                enabled: ${influx.enabled:false}
 
 ---
 spring:
@@ -63,22 +86,3 @@ database:
 logging:
   level:
     com.rackspacecloud: info
-
-
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "health,jolokia,metrics"
-    metrics:
-        export:
-            statsd:
-                flavor: ${statsd.flavor:telegraf}
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8125}
-                enabled: ${statsd.enabled:false}
-            influx:
-                db: telemetry-ambassador
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8086}
-                enabled: ${influx.enabled:false}

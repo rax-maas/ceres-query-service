@@ -7,6 +7,10 @@ import java.util.Map;
 public class DevTestTenantRouteProvider implements RouteProvider {
     @Override
     public TenantRoutes getRoute(String tenantId, RestTemplate restTemplate) {
+        return getTenantRoutes(tenantId);
+    }
+
+    public static TenantRoutes getTenantRoutes(String tenantId) {
         TenantRoutes tenantRoutes = new TenantRoutes();
         tenantRoutes.setTenantId(tenantId);
         Map<String, TenantRoutes.TenantRoute> routes = tenantRoutes.getRoutes();
