@@ -279,3 +279,14 @@ This endpoint provides all of the values for given tags in a given measurement. 
 	  }
   ]
   ```
+## Setup
+Install docker. Once done with that, you can use [`test-infrastructure`](https://github.com/racker/ceres-test-infrastructure) repository to install and run `Kafka`, `InfluxDB` and `Redis`. Please follow instruction from that repository to install them. Query service needs `InfluxDB` only. But to support this service we would need `Kafka` as well to get the data into `InfluxDB`. <br />
+**WORK-IN-PROGRESS** <br />
+Ideally we should have all of these components in `docker-compose`, but for now, we might have to follow a little manual process. <br />
+To run or test Query Service locally:
+- Get repo `ingestion-service-functional-test` and after building it. 
+  - Go to `ingestion-service-functional-test` folder locally
+  - Run `java -jar target/kafka-influxdb-functional-test-0.0.1-SNAPSHOT.jar` This will create raw test data into Kafka.
+- Run `ingestion-service` with `raw-data-consumer` and `development` profiles
+  - command to run `java -Dspring.profiles.active=raw-data-consumer,development -DTEST_KAFKA_BOOTSTRAP_SERVERS=localhost:9092 -jar target/ingestion-service-0.0.1-SNAPSHOT.jar` This should create data in `InfluxDB` and now you should be able to run the `query-service` to fetch data.
+
