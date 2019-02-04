@@ -5,6 +5,7 @@ import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
 import com.rackspacecloud.metrics.queryservice.models.MeasurementQueryRequest;
 import com.rackspacecloud.metrics.queryservice.models.QueryInput;
 import com.rackspacecloud.metrics.queryservice.services.QueryService;
+import io.micrometer.core.annotation.Timed;
 import org.influxdb.dto.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class QueryController {
     )
     // Note Confirm this is the correct role for this method:
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","querystring"})
     public List<?> find(
             @NotBlank @PathVariable final String tenantId,
             @Valid @RequestBody final QueryInput queryInput) throws Exception {
@@ -153,6 +155,7 @@ public class QueryController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","query.measurement"})
     public List<?> queryMeasurement(
             @NotBlank @PathVariable final String tenantId,
             @NotBlank @PathVariable final String measurement,
@@ -180,6 +183,7 @@ public class QueryController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","measurements"})
     public List<?> measurements(@NotBlank @PathVariable final String tenantId) {
         LOGGER.info("measurements: request received for tenantId [{}]", tenantId);
 
@@ -202,6 +206,7 @@ public class QueryController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","tags"})
     public List<?> tags(
             @NotBlank @PathVariable final String tenantId,
             @NotBlank @PathVariable final String measurement) {
@@ -227,6 +232,7 @@ public class QueryController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","tags.values"})
     public List<?> tagValues(
             @NotBlank @PathVariable final String tenantId,
             @NotBlank @PathVariable final String measurement,
@@ -253,6 +259,7 @@ public class QueryController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","fields"})
     public List<?> fields(
             @NotBlank @PathVariable final String tenantId,
             @NotBlank @PathVariable final String measurement) {
