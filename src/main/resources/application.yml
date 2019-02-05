@@ -1,27 +1,6 @@
 server:
   port: 8080
 
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "health,jolokia,metrics"
-    metrics:
-        export:
-            statsd:
-                flavor: ${statsd.flavor:telegraf}
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8125}
-                enabled: ${statsd.enabled:false}
-            influx:
-                db: telemetry-ambassador
-                host: ${statsd.host:localhost}
-                port: ${statsd.port:8086}
-                enabled: ${influx.enabled:false}
-        web:
-          server:
-            auto-time-requests: true
-
 ---
 spring:
   profiles: test
@@ -62,6 +41,18 @@ logging:
   level:
     com.rackspacecloud: debug
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,jolokia,metrics"
+  metrics:
+    export:
+      influx:
+        db: ceres
+        uri: http://localhost:8086
+        auto-create-db: true
+
 ---
 spring:
   profiles: production
@@ -86,3 +77,15 @@ database:
 logging:
   level:
     com.rackspacecloud: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,jolokia,metrics"
+  metrics:
+    export:
+      influx:
+        db: ceres
+        uri: http://data-influxdb:8086
+        auto-create-db: true
