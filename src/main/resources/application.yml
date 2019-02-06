@@ -89,3 +89,5 @@ management:
         db: ceres
         uri: http://data-influxdb:8086
         auto-create-db: true
+      stackdriver:
+        project-id: ceres-dev-222017
