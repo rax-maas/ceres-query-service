@@ -1,0 +1,7 @@
+steps:
+  - name: 'gcr.io/cloud-builders/mvn'
+    id: DEPLOY
+    args: ['-Ddocker.image.prefix=gcr.io/ceres-dev-222017', 'package', 'jib:dockerBuild']
+
+images:
+  - 'gcr.io/ceres-dev-222017/metrics-query-service'
