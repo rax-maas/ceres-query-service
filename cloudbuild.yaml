@@ -5,3 +5,6 @@ steps:
 
 images:
   - 'gcr.io/ceres-dev-222017/metrics-query-service'
+  - 'gcr.io/ceres-dev-222017/metrics-query-service:$REVISION_ID'
+  - 'gcr.io/ceres-dev-222017/metrics-query-service:$BRANCH_NAME'
+  - 'gcr.io/ceres-dev-222017/metrics-query-service:$SHORT_SHA'
