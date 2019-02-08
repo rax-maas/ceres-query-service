@@ -19,7 +19,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -251,6 +253,61 @@ public class QueryServiceImpl implements QueryService {
         String influxDbUrl = getRouteForGivenDatabase(dbName);
 
         QueryResult queryResult = urlInfluxDBInstanceMap.get(influxDbUrl).query(query);
-        return queryResult;
+
+        if(queryResult.hasError()){
+            String error = queryResult.getError();
+            throw new ErroredQueryResultException("Query error: [" + error + "]");
+        }
+
+        QueryResult qr = new QueryResult();
+
+        List<QueryResult.Result> results = queryResult.getResults();
+
+        List<QueryResult.Result> newResults = getProcessedResults(results);
+
+        qr.setResults(newResults);
+
+        return qr;
+    }
+
+    private List<QueryResult.Result> getProcessedResults(List<QueryResult.Result> results) {
+        List<QueryResult.Result> newResults = new ArrayList<>();
+
+        results.forEach(result -> {
+            QueryResult.Result res = new QueryResult.Result();
+
+            List<QueryResult.Series> seriesList = new ArrayList<>();
+            result.getSeries().forEach(series -> {
+                QueryResult.Series s = new QueryResult.Series();
+                s.setName(series.getName());
+
+                List<String> columns = series.getColumns();
+                s.setColumns(columns);
+
+                List<List<Object>> valuesCollection = series.getValues();
+                List<List<Object>> newValuesCollection = new ArrayList<>();
+
+                for(List<Object> valueCollection : valuesCollection){
+                    if(valueCollection.size() == 0) continue; // skip this record
+                    Object[] objects = new Object[valueCollection.size()];
+
+                    for(int i = 0; i < valueCollection.size(); i++){
+                        objects[i] = columns.get(i).equalsIgnoreCase("time")
+                                ? Long.valueOf(Instant.parse(valueCollection.get(i).toString()).getEpochSecond()) * 1000
+                                : valueCollection.get(i);
+                    }
+
+                    newValuesCollection.add(Arrays.asList(objects));
+                }
+
+                s.setValues(newValuesCollection);
+                seriesList.add(s);
+            });
+
+            res.setSeries(seriesList);
+
+            newResults.add(res);
+        });
+        return newResults;
     }
 }
