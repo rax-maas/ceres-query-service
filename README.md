@@ -286,7 +286,7 @@ Ideally we should have all of these components in `docker-compose`, but for now,
 To run or test Query Service locally:
 - Get repo `ingestion-service-functional-test` and after building it. 
   - Go to `ingestion-service-functional-test` folder locally
-  - Run `java -jar target/kafka-influxdb-functional-test-0.0.1-SNAPSHOT.jar` This will create raw test data into Kafka.
+  - Run `java -jar target/ingestion-service-functional-test-0.0.1-SNAPSHOT.jar` This will create raw test data into Kafka.
 - Run `ingestion-service` with `raw-data-consumer` and `development` profiles
   - command to run `java -Dspring.profiles.active=raw-data-consumer,development -DTEST_KAFKA_BOOTSTRAP_SERVERS=localhost:9092 -jar target/ingestion-service-0.0.1-SNAPSHOT.jar` This should create data in `InfluxDB` and now you should be able to run the `query-service` to fetch data.
 
