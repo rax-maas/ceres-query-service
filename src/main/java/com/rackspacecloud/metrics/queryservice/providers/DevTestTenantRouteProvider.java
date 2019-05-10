@@ -1,68 +1,33 @@
 package com.rackspacecloud.metrics.queryservice.providers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import java.io.IOException;
+import java.util.Collection;
 
 public class DevTestTenantRouteProvider implements RouteProvider {
-    @Override
-    public TenantRoutes getRoute(String tenantId, RestTemplate restTemplate) {
-        return getTenantRoutes(tenantId);
+    private String tenantRoutingServiceUrl;
+
+    public DevTestTenantRouteProvider(String tenantRoutingServiceUrl) {
+        this.tenantRoutingServiceUrl = tenantRoutingServiceUrl;
     }
 
-    public static TenantRoutes getTenantRoutes(String tenantId) {
-        TenantRoutes tenantRoutes = new TenantRoutes();
-        tenantRoutes.setTenantId(tenantId);
-        Map<String, TenantRoutes.TenantRoute> routes = tenantRoutes.getRoutes();
+    @Override
+    public TenantRoutes getRoute(String tenantId, String measurement, RestTemplate restTemplate) {
+        String requestUrl = String.format("%s/%s/%s", tenantRoutingServiceUrl, tenantId, measurement);
 
-        routes.put("full", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_5d",
-                "5d",
-                10000
-        ));
+        //TODO: Work on any exception handling if restTemplate throws exception
+        return restTemplate.getForObject(requestUrl, TenantRoutes.class);
+    }
 
-        routes.put("5m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_10d",
-                "10d",
-                10000
-        ));
 
-        routes.put("20m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_20d",
-                "20d",
-                10000
-        ));
 
-        routes.put("60m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_155d",
-                "155d",
-                10000
-        ));
+    @Override
+    public Collection<String> getMeasurements(String tenantId, RestTemplate restTemplate) {
+        String requestUrl = String.format("%s/%s/measurements", tenantRoutingServiceUrl, tenantId);
 
-        routes.put("240m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_300d",
-                "300d",
-                10000
-        ));
-
-        routes.put("1440m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_hybrid_1667601",
-                "rp_1825d",
-                "1825d",
-                10000
-        ));
-
-        return tenantRoutes;
+        return restTemplate.getForObject(requestUrl, Collection.class);
     }
 }
