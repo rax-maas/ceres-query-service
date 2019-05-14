@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 @Service
@@ -31,21 +32,20 @@ public class QueryServiceImpl implements QueryService {
     private static final String PREFIX_FOR_SHOW_TAG_VALUES_FOR_GIVEN_KEY = "SHOW TAG VALUES FROM ";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);
-    private Map<String, InfluxDB> urlInfluxDBInstanceMap;
+    private ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap;
     private RouteProvider routeProvider;
 
     private RestTemplate restTemplate;
 
     @Autowired
     public QueryServiceImpl(
-            Map<String, InfluxDB> urlInfluxDBInstanceMap,
+            ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap,
             RestTemplate restTemplate,
             RouteProvider routeProvider) {
 
         this.urlInfluxDBInstanceMap = urlInfluxDBInstanceMap;
-        for(String key : this.urlInfluxDBInstanceMap.keySet()){
-            this.urlInfluxDBInstanceMap.get(key).setLogLevel(InfluxDB.LogLevel.BASIC);
-        }
+
+        this.urlInfluxDBInstanceMap.forEach((k,v) -> v.setLogLevel(InfluxDB.LogLevel.BASIC));
 
         this.restTemplate = restTemplate;
         this.routeProvider = routeProvider;
@@ -150,11 +150,7 @@ public class QueryServiceImpl implements QueryService {
 
         Query query = new Query(queryString, route.getDatabaseName());
 
-        InfluxDB influxDB = urlInfluxDBInstanceMap.get(route.getPath());
-        if(influxDB == null) {
-            influxDB = InfluxDBFactory.connect(route.getPath());
-            urlInfluxDBInstanceMap.put(route.getPath(), influxDB);
-        }
+        InfluxDB influxDB = getInfluxDB(route);
         QueryResult queryResult = influxDB.query(query);
 
         if(queryResult.hasError()){
@@ -173,6 +169,10 @@ public class QueryServiceImpl implements QueryService {
         return qr;
     }
 
+    private InfluxDB getInfluxDB(TenantRoutes.TenantRoute route) {
+        return urlInfluxDBInstanceMap.computeIfAbsent(route.getPath(), key -> InfluxDBFactory.connect(key));
+    }
+
     private QueryResult getQueryResultForShowFieldsOrTagsKeysOrTagsValues(
             String tenantId, String queryString, String prefix) {
         String[] strArray = queryString.split(prefix);
@@ -187,11 +187,7 @@ public class QueryServiceImpl implements QueryService {
 
         Query query = new Query(queryString, route.getDatabaseName());
 
-        InfluxDB influxDB = urlInfluxDBInstanceMap.get(route.getPath());
-        if(influxDB == null) {
-            influxDB = InfluxDBFactory.connect(route.getPath());
-            urlInfluxDBInstanceMap.put(route.getPath(), influxDB);
-        }
+        InfluxDB influxDB = getInfluxDB(route);
         QueryResult queryResult = influxDB.query(query);
 
         if(queryResult.hasError()){

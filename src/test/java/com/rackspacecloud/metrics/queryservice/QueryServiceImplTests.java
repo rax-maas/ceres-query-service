@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.mockito.Mockito.*;
 
@@ -36,7 +37,7 @@ public class QueryServiceImplTests {
     private RestTemplate restTemplate;
 
     @Mock
-    Map<String, InfluxDB> urlInfluxDBInstanceMap;
+    ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap;
 
     @InjectMocks
     private QueryServiceImpl queryService;
@@ -240,7 +241,7 @@ public class QueryServiceImplTests {
         when(routeProvider.getRoute(anyString(), anyString(), any())).thenReturn(routes);
 
         InfluxDB influxDB = mock(InfluxDB.class);
-        when(urlInfluxDBInstanceMap.get(any())).thenReturn(influxDB);
+        when(urlInfluxDBInstanceMap.computeIfAbsent(anyString(), any())).thenReturn(influxDB);
 
         QueryResult queryResult = new QueryResult();
         queryResult.setError("Test measurements_erroredQueryResult_throwsErroredQueryResultException");
@@ -257,7 +258,7 @@ public class QueryServiceImplTests {
         when(routeProvider.getRoute(anyString(), anyString(), any())).thenReturn(routes);
 
         InfluxDB influxDB = mock(InfluxDB.class);
-        when(urlInfluxDBInstanceMap.get(any())).thenReturn(influxDB);
+        when(urlInfluxDBInstanceMap.computeIfAbsent(anyString(), any())).thenReturn(influxDB);
 
         when(influxDB.query(any())).thenReturn(queryResult);
     }
