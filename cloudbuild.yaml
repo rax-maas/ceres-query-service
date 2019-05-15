@@ -3,7 +3,6 @@ substitutions:
   _CERES_PROJECT: ceres-query-service
 
 steps:
-
     # This is ugly because of
     # https://github.com/GoogleContainerTools/jib/issues/1500#issuecomment-466207421
   - id: FIX_DOCKER
