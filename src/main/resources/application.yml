@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8085
 
 ---
 spring:
@@ -14,8 +14,8 @@ rest-template:
   pooling-http-client-connection-manager:
     max-total: 20 # Max number of connection to pool
 
-database:
-  urls: "http://localhost:8086"
+tenant-routing-service:
+  url: "http://localhost:8081"
 
 logging:
   level:
@@ -34,8 +34,8 @@ rest-template:
   pooling-http-client-connection-manager:
     max-total: 20 # Max number of connection to pool
 
-database:
-  urls: "http://localhost:8086"
+tenant-routing-service:
+  url: "http://localhost:8081"
 
 logging:
   level:
@@ -57,6 +57,9 @@ management:
 spring:
   profiles: production
 
+server:
+  port: 8080
+
 rest-template:
   request-config:
     # timeout when requesting a connection from the connection manager
@@ -71,8 +74,8 @@ rest-template:
   pooling-http-client-connection-manager:
     max-total: ${REST_TEMPLATE_CONNECTION_POOLING_MAX} # Max number of connection to pool
 
-database:
-  urls: ${INFLUXDB_URLS}
+tenant-routing-service:
+  url: ${TENANT_ROUTING_SERVICE_URL}
 
 logging:
   level:
@@ -87,5 +90,7 @@ management:
     export:
       influx:
         db: ceres
-        uri: http://data-influxdb:8086
+        uri: ${INFLUXDB_METRICS_URL}
         auto-create-db: true
+      stackdriver:
+        project-id: ceres-dev-222017

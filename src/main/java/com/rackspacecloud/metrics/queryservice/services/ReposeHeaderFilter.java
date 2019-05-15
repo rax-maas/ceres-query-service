@@ -50,8 +50,9 @@ public class ReposeHeaderFilter extends GenericFilterBean {
         if (servletRequest instanceof HttpServletRequest) {
             final HttpServletRequest req = (HttpServletRequest) servletRequest;
 
-            final String value = req.getHeader(HEADER_X_ROLES);
-            final String tenant = req.getHeader(HEADER_TENANT);
+            // TODO: REMOVE IT AFTER GRAFANA TEST
+            final String value = "foo"; // req.getHeader(HEADER_X_ROLES);
+            final String tenant = "bar"; // req.getHeader(HEADER_TENANT);
 
             if ((StringUtils.hasText(value)) && (StringUtils.hasText(tenant))) {
                 final String[] convertedNames = value.trim().replace(':', '_')

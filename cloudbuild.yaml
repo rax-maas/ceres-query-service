@@ -39,6 +39,8 @@ steps:
     - name: user.home
       path: /root
 
+  # This phase is when the tests are run, the app is packaged into a container,
+  # and its pushed to the Google Container Registry
   - id: PACKAGE_AND_PUSH_CONTAINER
     name: 'gcr.io/cloud-builders/mvn'
     env:
@@ -74,4 +76,3 @@ steps:
     volumes:
     - name: user.home
       path: /root
-

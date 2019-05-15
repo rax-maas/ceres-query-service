@@ -27,6 +27,7 @@
 
 		<!-- Pass on right value to publish the docker image to the registry -->
 		<docker.image.prefix>gcr.io/PROJECT_ID</docker.image.prefix>
+		<docker.image.latest>latest</docker.image.latest>
 	</properties>
 
 	<dependencies>
@@ -80,7 +81,11 @@
 			<artifactId>micrometer-registry-influx</artifactId>
 			<version>1.1.2</version>
 		</dependency>
-
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-stackdriver</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
