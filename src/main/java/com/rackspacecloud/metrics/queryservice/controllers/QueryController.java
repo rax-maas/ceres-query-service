@@ -6,12 +6,8 @@ import org.influxdb.dto.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("")
@@ -21,16 +17,12 @@ public class QueryController {
     @Autowired
     QueryService queryService;
 
-    @RequestMapping(
-            value = "/query",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping("/query")
     @Secured({"ROLE_COMPUTE_DEFAULT"})
     @Timed(value = "query.service", extraTags = {"query.type","query.grafana"})
     public QueryResult query(
             final @RequestParam("db") String dbName,
-            final @RequestParam("q") String queryString) throws Exception {
+            final @RequestParam("q") String queryString) {
         return queryService.query(dbName, queryString);
     }
 }

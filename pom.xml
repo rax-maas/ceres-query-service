@@ -27,6 +27,7 @@
 
 		<!-- Pass on right value to publish the docker image to the registry -->
 		<docker.image.prefix>gcr.io/PROJECT_ID</docker.image.prefix>
+		<docker.image.latest>latest</docker.image.latest>
 	</properties>
 
 	<dependencies>
@@ -100,7 +101,12 @@
                 <version>1.0.0</version>
                 <configuration>
                     <to>
-                        <image>${docker.image.prefix}/metrics-query-service</image>
+						<image>${docker.image.prefix}/${project.artifactId}</image>
+						<tags>
+							<tag>${project.version}</tag>
+							<tag>${docker.image.latest}</tag>
+							<tag>${env.SHORT_SHA}</tag>
+						</tags>
                     </to>
                 </configuration>
             </plugin>
