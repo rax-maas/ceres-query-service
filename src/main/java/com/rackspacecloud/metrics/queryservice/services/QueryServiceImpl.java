@@ -142,7 +142,7 @@ public class QueryServiceImpl implements QueryService {
             );
         }
 
-        String regexString = "from|FROM";
+        String regexString = "(?i)from"; // regex string for case-insensitive "from"
         String[] strArr = trimmedString.split(regexString);
         if(strArr.length < 2) {
             log.error("Query String: [{}]. Split regex is: [{}]. " +
@@ -182,7 +182,7 @@ public class QueryServiceImpl implements QueryService {
         // double quote characters to get the actual measurement name string
         // For example: Measurement name foo_bar from Grafana will show up as "foo_bar"
         if(measurement.startsWith("\"") && measurement.endsWith("\"")) {
-            measurement = measurement.substring(1, measurement.lastIndexOf("\""));
+            measurement = measurement.substring(1, measurement.length() - 1);
         }
 
         if(StringUtils.isEmpty(measurement)) {
