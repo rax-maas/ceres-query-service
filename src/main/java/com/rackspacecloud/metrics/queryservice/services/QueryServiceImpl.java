@@ -5,23 +5,26 @@ import com.rackspacecloud.metrics.queryservice.exceptions.InvalidQueryException;
 import com.rackspacecloud.metrics.queryservice.exceptions.RouteNotFoundException;
 import com.rackspacecloud.metrics.queryservice.providers.RouteProvider;
 import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
+import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class QueryServiceImpl implements QueryService {
     private static final String CREATE_GRAFANA_DATA_SOURCE_PREFIX = "SHOW RETENTION POLICIES on ";
     private static final String GRAFANA_GRAPH_EDIT_ENTRY_WINDOW_QUERY_PREFIX =
@@ -31,7 +34,6 @@ public class QueryServiceImpl implements QueryService {
     private static final String PREFIX_FOR_SHOW_TAGS_FOR_MEASUREMENT = "SHOW TAG KEYS FROM ";
     private static final String PREFIX_FOR_SHOW_TAG_VALUES_FOR_GIVEN_KEY = "SHOW TAG VALUES FROM ";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueryServiceImpl.class);
     private ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap;
     private RouteProvider routeProvider;
 
@@ -67,7 +69,7 @@ public class QueryServiceImpl implements QueryService {
         catch(Exception e) {
             String errMsg = String.format(
                     "Failed to get routes for tenantId [%s] and measurement [%s]", tenantId, measurement);
-            LOGGER.error(errMsg, e);
+            log.error(errMsg, e);
             throw new RouteNotFoundException(errMsg, e);
         }
     }
@@ -140,11 +142,17 @@ public class QueryServiceImpl implements QueryService {
             );
         }
 
-        String[] strArr = trimmedString.split("from|FROM");
-        if(strArr.length < 2) return null;
+        String regexString = "(?i)from"; // regex string for case-insensitive "from"
+        String[] strArr = trimmedString.split(regexString);
+        if(strArr.length < 2) {
+            log.error("Query String: [{}]. Split regex is: [{}]. " +
+                            "Expected split array length to be at least 2, but found [{}]",
+                    queryString, regexString, strArr.length);
+            return null;
+        }
 
-        String measurement = strArr[1].trim().split(" ")[0];
-        if(StringUtils.isEmpty(measurement)) return null;
+        String measurement = getCleanedMeasurementName(queryString, strArr[1].trim().split(" ")[0]);
+        if (measurement == null) return null;
 
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
@@ -169,6 +177,21 @@ public class QueryServiceImpl implements QueryService {
         return qr;
     }
 
+    private String getCleanedMeasurementName(String queryString, String measurement) {
+        // Measurement name coming from Grafana is wrapped up in double quotes. So, we need to remove those
+        // double quote characters to get the actual measurement name string
+        // For example: Measurement name foo_bar from Grafana will show up as "foo_bar"
+        if(measurement.startsWith("\"") && measurement.endsWith("\"")) {
+            measurement = measurement.substring(1, measurement.length() - 1);
+        }
+
+        if(StringUtils.isEmpty(measurement)) {
+            log.error("Measurement name is empty in the query string [{}]", queryString);
+            return null;
+        }
+        return measurement;
+    }
+
     private InfluxDB getInfluxDB(TenantRoutes.TenantRoute route) {
         return urlInfluxDBInstanceMap.computeIfAbsent(route.getPath(), key -> InfluxDBFactory.connect(key));
     }
@@ -177,13 +200,21 @@ public class QueryServiceImpl implements QueryService {
             String tenantId, String queryString, String prefix) {
         String[] strArray = queryString.split(prefix);
 
-        if(strArray.length < 2) return null;
+        if(strArray.length < 2) {
+            log.error("Query String: [{}]. Split regex is: [{}]. " +
+                            "Expected split array length to be at least 2, but found [{}]",
+                    queryString, prefix, strArray.length);
+            return null;
+        }
 
         // Measurement name will be the first string in the 1st indexed String.
-        String measurementName = strArray[1].trim().split(" ")[0];
-        if(StringUtils.isEmpty(measurementName)) return null;
+        String measurementName = getCleanedMeasurementName(queryString, strArray[1].trim().split(" ")[0]);
+        if (measurementName == null) return null;
 
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurementName);
+
+        log.debug("Route information - db:[{}],rp:[{}],path:[{}]", route.getDatabaseName(),
+                route.getRetentionPolicy(), route.getPath());
 
         Query query = new Query(queryString, route.getDatabaseName());
 
