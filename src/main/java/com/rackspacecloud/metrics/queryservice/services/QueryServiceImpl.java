@@ -16,10 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
@@ -270,6 +267,9 @@ public class QueryServiceImpl implements QueryService {
                 result.getSeries().forEach(series -> {
                     QueryResult.Series s = new QueryResult.Series();
                     s.setName(series.getName());
+
+                    Map<String, String> tags = series.getTags();
+                    s.setTags(tags);
 
                     List<String> columns = series.getColumns();
                     s.setColumns(columns);
