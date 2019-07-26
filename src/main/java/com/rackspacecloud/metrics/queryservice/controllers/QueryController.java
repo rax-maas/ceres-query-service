@@ -1,18 +1,26 @@
 package com.rackspacecloud.metrics.queryservice.controllers;
 
+import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
+import com.rackspacecloud.metrics.queryservice.exceptions.ErroredQueryResultException;
 import com.rackspacecloud.metrics.queryservice.services.QueryService;
 import io.micrometer.core.annotation.Timed;
+import lombok.extern.slf4j.Slf4j;
 import org.influxdb.dto.QueryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("")
+@Slf4j
 public class QueryController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueryController.class);
 
     @Autowired
     QueryService queryService;
@@ -24,5 +32,41 @@ public class QueryController {
             final @RequestParam("db") String dbName,
             final @RequestParam("q") String queryString) {
         return queryService.query(dbName, queryString);
+    }
+
+    @GetMapping("/intelligence-format-query")
+    @Secured({"ROLE_COMPUTE_DEFAULT"})
+    @Timed(value = "query.service", extraTags = {"query.type","query.intelligence"})
+    public List<?> intelligenceFormattedQuery(
+            final @RequestParam("db") String dbName,
+            final @RequestParam("q") String queryString) {
+        log.debug("Called url:[{}] with tenantId: [{}], query string: [{}]",
+                "/intelligence-format-query", dbName, queryString);
+        QueryResult queryResult = query(dbName, queryString);
+
+        if(queryResult.hasError()){
+            String error = queryResult.getError();
+            throw new ErroredQueryResultException("Query error: [" + error + "]");
+        }
+
+        List<QueryResult.Result> results = queryResult.getResults();
+
+        List<QueryDomainOutput> outputs = new ArrayList<>();
+
+        for(QueryResult.Result result : results){
+            for(QueryResult.Series series : result.getSeries()){
+                QueryDomainOutput output = new QueryDomainOutput();
+                output.setName(series.getName());
+                output.setColumns(series.getColumns());
+                output.setTags(series.getTags());
+                output.setValuesCollection(series.getValues());
+                outputs.add(output);
+            }
+        }
+
+        List<Map<String, Object>> response = new ArrayList<>();
+        outputs.forEach(out -> response.addAll(out.getQueryResponse()));
+
+        return response;
     }
 }

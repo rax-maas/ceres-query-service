@@ -87,6 +87,9 @@ management:
       exposure:
         include: "health,jolokia,metrics"
   metrics:
+    tags:
+      stack: "prod"
+      service: "query-service"
     export:
       influx:
         db: ceres
