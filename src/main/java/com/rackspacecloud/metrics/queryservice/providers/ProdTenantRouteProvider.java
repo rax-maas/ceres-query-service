@@ -13,7 +13,7 @@ public class ProdTenantRouteProvider implements RouteProvider {
 
     @Override
     public TenantRoutes getRoute(String tenantId, String measurement, RestTemplate restTemplate) {
-        String requestUrl = String.format("%s/%s/%s", tenantRoutingServiceUrl, tenantId, measurement);
+        String requestUrl = String.format("%s/%s/%s?readOnly=true", tenantRoutingServiceUrl, tenantId, measurement);
 
         //TODO: Work on any exception handling if restTemplate throws exception
         return restTemplate.getForObject(requestUrl, TenantRoutes.class);
