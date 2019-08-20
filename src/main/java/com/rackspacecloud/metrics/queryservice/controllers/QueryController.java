@@ -25,6 +25,10 @@ public class QueryController {
     @Autowired
     QueryService queryService;
 
+    final String showFields = "SHOW FIELD KEYS FROM \"";
+    final String queryPart1 = "SELECT average, ";
+    final String queryPart2 = "FROM \"MAAS_ping\" WHERE time >= now() - 1h LIMIT 1";
+
     @GetMapping("/query")
     @Secured({"ROLE_COMPUTE_DEFAULT"})
     @Timed(value = "query.service", extraTags = {"query.type","query.grafana"})
@@ -68,5 +72,37 @@ public class QueryController {
         outputs.forEach(out -> response.addAll(out.getQueryResponse()));
 
         return response;
+    }
+
+    @GetMapping("/field-units")
+    @Secured({"ROLE_COMPUTE_DEFAULT"})
+    public List<?> getFieldUnits(
+        final @RequestParam("measurement") String measurement,
+        final @RequestParam("db") String dbName,
+        final @RequestParam("device") String device
+    ) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(showFields);
+        builder.append(dbName);
+        builder.append("\"");
+
+        QueryResult queryResult = this.query(dbName, builder.toString());
+        StringBuilder secondQuery = new StringBuilder();
+        secondQuery.append(queryPart1);
+        queryResult.getResults().forEach((result) -> {
+            builder.append(result.toString());
+            builder.append("_unit");
+        });
+        secondQuery.append(queryPart2);
+
+
+        /*
+         * SELECT mean("${metric}") FROM "${table}"
+    WHERE time >= ${endTime} - ${startTime} AND device = "${device}"
+    GROUP BY time(1m) fill(null)`;
+         */
+        this.query(dbName, secondQuery.toString());
+
+        return null;
     }
 }
