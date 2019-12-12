@@ -32,9 +32,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class ReposeWebConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(new ReposeHeaderFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(
+                new ReposeHeaderFilter(),
+                UsernamePasswordAuthenticationFilter.class);
         http.csrf().disable();
-        http.antMatcher("/**")
+        http.antMatcher("/tenant/**")
                 .authorizeRequests()
                 .anyRequest().authenticated();
     }
