@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: 8080
 
 ---
 spring:
@@ -20,6 +20,9 @@ tenant-routing-service:
 logging:
   level:
     com.rackspacecloud: debug
+
+security:
+  whitelistedIpRange: "192.168.0.1/32"
 
 ---
 spring:
@@ -53,6 +56,8 @@ management:
         uri: http://localhost:8086
         auto-create-db: true
 
+security:
+  whitelistedIpRange: "192.168.0.1/32"
 ---
 spring:
   profiles: production
@@ -97,3 +102,6 @@ management:
         auto-create-db: true
       stackdriver:
         project-id: ceres-dev-222017
+
+security:
+  whitelistedIpRange: "192.168.0.1/32"
