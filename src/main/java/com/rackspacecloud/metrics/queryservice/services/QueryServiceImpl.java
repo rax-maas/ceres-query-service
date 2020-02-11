@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -71,7 +73,7 @@ public class QueryServiceImpl implements QueryService {
         }
     }
 
-    private Collection<String> getMeasurementsForGivenTenantId(String tenantId) {
+    public Collection<String> getMeasurementsForGivenTenantId(String tenantId) {
         return routeProvider.getMeasurements(tenantId, restTemplate);
     }
 
@@ -86,6 +88,23 @@ public class QueryServiceImpl implements QueryService {
         return (Pattern.matches(selectRegex, stringToMatch) &&
                 Pattern.matches(fromRegex, stringToMatch) &&
                 Pattern.matches(whereRegex, stringToMatch));
+    }
+
+    @Override
+    public QueryResult getMeasurementsForTenant(String tenantId) {
+        return getQueryResultForMeasurementDropDown(tenantId);
+    }
+
+    @Override
+    // TODO
+    public QueryResult getMeasurementDescription(String tenantId, String measurement) {
+        return null;
+    }
+
+    @Override
+    // TODO
+    public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
+        return null;
     }
 
     @Override
