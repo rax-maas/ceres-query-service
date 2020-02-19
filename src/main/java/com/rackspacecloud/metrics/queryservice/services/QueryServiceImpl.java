@@ -8,6 +8,7 @@ import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.BoundParameterQuery;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,14 +98,49 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     // TODO
-    public QueryResult getMeasurementDescription(String tenantId, String measurement) {
-        return null;
+    public QueryResult getMeasurementTags(String tenantId, String measurement) {
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW TAG KEYS from $measurement")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
+    }
+
+    @Override
+    // TODO
+    public QueryResult getMeasurementFields(String tenantId, String measurement) {
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW FIELD KEYS from $measurement")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
     }
 
     @Override
     // TODO
     public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
-        return null;
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SELECT * from $measurement where timestamp>=$begin and timestamp<=$end")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .bind("begin", begin)
+                .bind("end", end)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
     }
 
     @Override

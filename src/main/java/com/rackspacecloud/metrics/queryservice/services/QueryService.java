@@ -9,7 +9,9 @@ public interface QueryService {
 
     QueryResult getMeasurementsForTenant(String tenantId);
 
-    QueryResult getMeasurementDescription(String tenantId, String measurement);
+    QueryResult getMeasurementTags(String tenantId, String measurement);
+
+    QueryResult getMeasurementFields(String tenantId, String measurement);
 
     QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end);
 
