@@ -22,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
@@ -251,6 +253,107 @@ public class QueryServiceImplTests {
         QueryResult qr = queryService.query("1234",
                 "SELECT mean(\"value\") FROM \"jvm_memory_used\" " +
                         "WHERE (\"area\" = 'heap') AND time >= now() - 6h GROUP BY time(1m) fill(null)");
+    }
+
+    @Test
+    public void validateGetMeasurementTags() {
+        QueryResult.Result result = new QueryResult.Result();
+        QueryResult.Series series = new QueryResult.Series();
+        List<String> columns = new ArrayList<>(Arrays.asList("tagKey"));
+
+        List<Object> tags = new ArrayList<>(Arrays.asList("tag1", "tag2", "tag3"));
+        List<List<Object>> values = new ArrayList<>();
+        tags.forEach(tag -> values.add(new ArrayList<>(Arrays.asList(tag))));
+        series.setColumns(columns);
+        series.setValues(values);
+        result.setSeries(Arrays.asList(series));
+        QueryResult expectedQueryResult = new QueryResult();
+        expectedQueryResult.setResults(new ArrayList<>(Arrays.asList(result)));
+        mockedComponents("1234", "measurement", expectedQueryResult);
+
+        QueryResult qr = queryService.getMeasurementTags("1234", "measurement");
+
+        QueryResult.Series actualSeries = qr.getResults().get(0).getSeries().get(0);
+
+        // Match column
+        Assert.assertEquals(columns.get(0), actualSeries.getColumns().get(0));
+
+        // Match values size
+        Assert.assertEquals(tags.size(), actualSeries.getValues().size());
+
+        // Match individual values
+        actualSeries.getValues().forEach(actualTag -> Assert.assertTrue(
+                "Tag " + actualTag.get(0) + " is not expected.", tags.contains(actualTag.get(0))));
+    }
+
+    @Test
+    public void validateGetMeasurementFields() {
+        QueryResult.Result result = new QueryResult.Result();
+        QueryResult.Series series = new QueryResult.Series();
+        List<String> columns = new LinkedList<>(Arrays.asList("fieldKey", "fieldType"));
+        List<Object> firstValueObject = new LinkedList<>(Arrays.asList("value_1", "float"));
+        List<List<Object>> values = new LinkedList<>();
+        values.add(firstValueObject);
+        series.setColumns(columns);
+        series.setValues(values);
+        result.setSeries(Arrays.asList(series));
+        QueryResult expectedQueryResult = new QueryResult();
+        expectedQueryResult.setResults(new ArrayList<>(Arrays.asList(result)));
+        mockedComponents("1234", "measurement", expectedQueryResult);
+
+        QueryResult qr = queryService.getMeasurementFields("1234", "measurement");
+
+        QueryResult.Series actualSeries = qr.getResults().get(0).getSeries().get(0);
+
+        // Match columns
+        for(int i = 0; i < 2; i++) {
+            Assert.assertEquals(columns.get(i), actualSeries.getColumns().get(i));
+        }
+
+        // Match values
+        for(int i = 0; i < 2; i++) {
+            Assert.assertEquals(firstValueObject.get(i), actualSeries.getValues().get(0).get(i));
+        }
+    }
+
+    @Test
+    public void validateGetMeasurementSeriesForTimeInterval() {
+        QueryResult.Result result = new QueryResult.Result();
+        QueryResult.Series series = new QueryResult.Series();
+        List<String> columns = new ArrayList<>(Arrays.asList("time", "mean"));
+
+        List<List<Object>> values = new ArrayList<>(Arrays.asList(
+                new ArrayList<>(Arrays.asList("2019-05-09T10:31:00.00Z",96686457.16666667)),
+                new ArrayList<>(Arrays.asList("2019-05-09T10:32:00.00Z",80639353.98095238)),
+                new ArrayList<>(Arrays.asList("2019-05-09T10:33:00.00Z",76527140.57142857))
+        ));
+
+        series.setColumns(columns);
+        series.setValues(values);
+        result.setSeries(Arrays.asList(series));
+        QueryResult expectedQueryResult = new QueryResult();
+        expectedQueryResult.setResults(new ArrayList<>(Arrays.asList(result)));
+        mockedComponents("1234", "jvm_memory_used", expectedQueryResult);
+
+        QueryResult qr = queryService.getMeasurementSeriesForTimeInterval("1234", "jvm_memory_used",
+                LocalDateTime.now().minusHours(6), LocalDateTime.now());
+
+        QueryResult.Series actualSeries = qr.getResults().get(0).getSeries().get(0);
+
+        // Match columns
+        for(int i = 0; i < 2; i++) {
+            Assert.assertEquals(columns.get(i), actualSeries.getColumns().get(i));
+        }
+
+        // Match values size
+        Assert.assertEquals(values.size(), actualSeries.getValues().size());
+
+        // Match individual values
+        for(int i = 0; i < values.size(); i++) {
+            Assert.assertEquals(Instant.parse(values.get(i).get(0).toString())
+                    .toEpochMilli(), actualSeries.getValues().get(i).get(0)); // match value's key
+            Assert.assertEquals(values.get(i).get(1), actualSeries.getValues().get(i).get(1)); // match value's value
+        }
     }
 
     private void mockedComponents(String tenantId, String measurement, QueryResult queryResult) {

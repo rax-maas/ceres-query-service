@@ -77,14 +77,30 @@ public class QueryController {
      * @param tenantId The id of the tenant
      * @return
      */
-    @GetMapping("/intelligence-format-query/measurement-description")
-    @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements-description"})
+    @GetMapping("/intelligence-format-query/measurement-tags")
+    @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-tags"})
+    public List<?> intelligenceFormattedQueryGetMeasurementTags(
+            final @RequestParam("measurement") String measurement,
+            final @RequestHeader(HEADER_TENANT) String tenantId) { // Use repose tenantId
+        log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
+                "/intelligence-format-query/measurement-tags", tenantId, measurement);
+        return convertQueryResultToList(queryService.getMeasurementTags(tenantId, measurement));
+    }
+
+    /**
+     * Return fields for measurement
+     * @param measurement The specific measurement to be described
+     * @param tenantId The id of the tenant
+     * @return
+     */
+    @GetMapping("/intelligence-format-query/measurement-fields")
+    @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements-fields"})
     public List<?> intelligenceFormattedQueryGetMeasurementDescription(
             final @RequestParam("measurement") String measurement,
             final @RequestHeader(HEADER_TENANT) String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
-                "/intelligence-format-query/measurement-description", tenantId, measurement);
-        return convertQueryResultToList(queryService.getMeasurementDescription(tenantId, measurement));
+                "/intelligence-format-query/measurement-fields", tenantId, measurement);
+        return convertQueryResultToList(queryService.getMeasurementFields(tenantId, measurement));
     }
 
     @GetMapping("/intelligence-format-query/measurement-series-by-time")
