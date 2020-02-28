@@ -97,7 +97,6 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    // TODO
     public QueryResult getMeasurementTags(String tenantId, String measurement) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
@@ -112,7 +111,6 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    // TODO
     public QueryResult getMeasurementFields(String tenantId, String measurement) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
@@ -127,7 +125,6 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    // TODO
     public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
