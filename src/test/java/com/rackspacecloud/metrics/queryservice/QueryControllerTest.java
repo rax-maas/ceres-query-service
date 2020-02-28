@@ -58,7 +58,7 @@ public class QueryControllerTest {
     public void test_GlobalExceptionHandler_getMethod_nonExistingTenant_throwsRouteNotFoundException() throws Exception {
         doThrow(RouteNotFoundException.class).when(queryServiceImpl).query(anyString(), anyString());
 
-        this.mockMvc.perform(get("/query?db=telegraf&q=SELECT mean(\"usage_user\")" +
+        this.mockMvc.perform(get("/grafana-query?db=telegraf&q=SELECT mean(\"usage_user\")" +
                 "FROM \"cpu\" WHERE time >= 1549513924084ms and time <= 1549514901143ms GROUP BY time(10s) fill(0)"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("{\"message\":null,\"rootCause\":null}"));
@@ -68,7 +68,7 @@ public class QueryControllerTest {
     public void test_GlobalExceptionHandler_getMethod_badQuery_throwsInvalidQueryException() throws Exception {
         doThrow(InvalidQueryException.class).when(queryServiceImpl).query(anyString(), anyString());
 
-        this.mockMvc.perform(get("/query?db=telegraf&q=SELECT mean(\"usage_user\")" +
+        this.mockMvc.perform(get("/grafana-query?db=telegraf&q=SELECT mean(\"usage_user\")" +
                 "FROM \"cpu\" WHERE time >= 1549513924084ms and time <= 1549514901143ms GROUP BY time(10s) fill(0)"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("{\"message\":null,\"rootCause\":null}"));
@@ -78,7 +78,7 @@ public class QueryControllerTest {
     public void test_GlobalExceptionHandler_getMethod_randomException_throwsException() throws Exception {
         doThrow(RuntimeException.class).when(queryServiceImpl).query(anyString(), anyString());
 
-        this.mockMvc.perform(get("/query?db=telegraf&q=SELECT mean(\"usage_user\")" +
+        this.mockMvc.perform(get("/grafana-query?db=telegraf&q=SELECT mean(\"usage_user\")" +
                 "FROM \"cpu\" WHERE time >= 1549513924084ms and time <= 1549514901143ms GROUP BY time(10s) fill(0)"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("{\"message\":null,\"rootCause\":null}"));
