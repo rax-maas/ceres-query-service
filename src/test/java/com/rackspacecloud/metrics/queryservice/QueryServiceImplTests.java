@@ -350,8 +350,7 @@ public class QueryServiceImplTests {
 
         // Match individual values
         for(int i = 0; i < values.size(); i++) {
-            Assert.assertEquals(Instant.parse(values.get(i).get(0).toString())
-                    .toEpochMilli(), actualSeries.getValues().get(i).get(0)); // match value's key
+            Assert.assertEquals(values.get(i).get(0).toString(), actualSeries.getValues().get(i).get(0));
             Assert.assertEquals(values.get(i).get(1), actualSeries.getValues().get(i).get(1)); // match value's value
         }
     }
