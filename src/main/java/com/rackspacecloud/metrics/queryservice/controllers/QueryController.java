@@ -103,6 +103,14 @@ public class QueryController {
         return convertQueryResultToList(queryService.getMeasurementFields(tenantId, measurement));
     }
 
+    /**
+     * Return datapoints for a particular measurement within a time range
+     * @param measurement the measurement to query
+     * @param begin beginning of time interval ISO 8601
+     * @param end end of time interval ISO 8601
+     * @param tenantId The tenantID for the measurement (from repose)
+     * @return
+     */
     @GetMapping("/intelligence-format-query/measurement-series-by-time")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-series-by-time"})
     public List<?> intelligenceFormattedQueryGetMeasurementSeriesByTime(
