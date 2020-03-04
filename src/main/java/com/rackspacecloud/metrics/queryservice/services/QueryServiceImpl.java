@@ -8,6 +8,7 @@ import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.BoundParameterQuery;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -71,7 +74,7 @@ public class QueryServiceImpl implements QueryService {
         }
     }
 
-    private Collection<String> getMeasurementsForGivenTenantId(String tenantId) {
+    public Collection<String> getMeasurementsForGivenTenantId(String tenantId) {
         return routeProvider.getMeasurements(tenantId, restTemplate);
     }
 
@@ -86,6 +89,55 @@ public class QueryServiceImpl implements QueryService {
         return (Pattern.matches(selectRegex, stringToMatch) &&
                 Pattern.matches(fromRegex, stringToMatch) &&
                 Pattern.matches(whereRegex, stringToMatch));
+    }
+
+    @Override
+    public QueryResult getMeasurementsForTenant(String tenantId) {
+        return getQueryResultForMeasurementDropDown(tenantId);
+    }
+
+    @Override
+    public QueryResult getMeasurementTags(String tenantId, String measurement) {
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW TAG KEYS from $measurement")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
+    }
+
+    @Override
+    public QueryResult getMeasurementFields(String tenantId, String measurement) {
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW FIELD KEYS from $measurement")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
+    }
+
+    @Override
+    public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
+        TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
+
+        Query query = BoundParameterQuery.QueryBuilder.newQuery("SELECT * from $measurement where timestamp>=$begin and timestamp<=$end")
+                .forDatabase(route.getDatabaseName())
+                .bind("measurement", measurement)
+                .bind("begin", begin)
+                .bind("end", end)
+                .create();
+
+        InfluxDB influxDB = getInfluxDB(route);
+        QueryResult results = influxDB.query(query);
+        return results;
     }
 
     @Override
