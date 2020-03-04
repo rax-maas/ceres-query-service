@@ -52,6 +52,9 @@ public class CombinedSecurityConfig {
 
     @Configuration
     public class ReposeWebConfig extends WebSecurityConfigurerAdapter {
+        @Value("${security.whitelistedRoles}")
+        private String[] whitelistedRoles;
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.addFilterBefore(
@@ -61,7 +64,7 @@ public class CombinedSecurityConfig {
             http.antMatcher("/intelligence-format-query/**")
                     .authorizeRequests()
                     .antMatchers("/intelligence-format-query/**")
-                    .hasRole("ROLE_COMPUTE_DEFAULT");
+                    .hasAnyRole(whitelistedRoles);
         }
     }
 }

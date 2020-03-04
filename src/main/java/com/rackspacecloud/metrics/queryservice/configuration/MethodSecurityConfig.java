@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @Configuration
 @ConfigurationProperties("repose-security")
 @EnableGlobalMethodSecurity(
+        // We don't use @Secured but rather keep this on just in case
         prePostEnabled = true,
         securedEnabled = true,
         jsr250Enabled = true)

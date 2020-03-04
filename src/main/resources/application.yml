@@ -23,6 +23,7 @@ logging:
 
 security:
   whitelistedIpRange: "192.168.0.1/32"
+  whitelistedRoles: "COMPUTE_DEFAULT"
 
 ---
 spring:
@@ -58,6 +59,7 @@ management:
 
 security:
   whitelistedIpRange: "192.168.0.1/32"
+  whitelistedRoles: "COMPUTE_DEFAULT"
 ---
 spring:
   profiles: production
@@ -105,3 +107,4 @@ management:
 
 security:
   whitelistedIpRange: "192.168.0.1/32"
+  whitelistedRoles: "COMPUTE_DEFAULT"
