@@ -7,11 +7,8 @@ import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.websocket.server.PathParam;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +57,10 @@ public class QueryController {
      * @param tenantId TenantID used for measurement lookup in tenant database
      * @return a list of measurements for tenant
      */
-    @GetMapping("/intelligence-format-query/measurements")
+    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurements")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements"})
     public List<?> intelligenceFormattedQueryGetMeasurements(
-            final @AuthenticationPrincipal String tenantId) { // Use repose tenantId
+            final @AuthenticationPrincipal String tenantId, @PathVariable String tenant) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}]",
                 "/intelligence-format-query/measurements", tenantId);
         return convertQueryResultToList(queryService.getMeasurementsForTenant(tenantId));

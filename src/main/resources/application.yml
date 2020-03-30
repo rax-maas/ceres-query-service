@@ -22,8 +22,8 @@ logging:
     com.rackspacecloud: debug
 
 security:
-  whitelistedIpRange: "192.168.0.1/32"
-  whitelistedRoles: "COMPUTE_DEFAULT"
+  whitelistedIpRange: "127.0.0.1/32"
+  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
 
 ---
 spring:
@@ -58,8 +58,8 @@ management:
         auto-create-db: true
 
 security:
-  whitelistedIpRange: "192.168.0.1/32"
-  whitelistedRoles: "COMPUTE_DEFAULT"
+  whitelistedIpRange: "127.0.0.1/32"
+  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
 ---
 spring:
   profiles: production
@@ -106,5 +106,5 @@ management:
         project-id: ceres-dev-222017
 
 security:
-  whitelistedIpRange: "192.168.0.1/32"
-  whitelistedRoles: "COMPUTE_DEFAULT"
+  whitelistedIpRange: "10.40.0.0/14"
+  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]

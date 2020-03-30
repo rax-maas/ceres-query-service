@@ -7,6 +7,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 
 /**
  * An interceptor that can be registered by a {@link WebMvcConfigurer} config bean via
@@ -15,6 +16,21 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 public class RequestLogging extends HandlerInterceptorAdapter {
+
+  /* Additional unsafe logging */
+  /*
+  @Override
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    log.info("request url:{}", request.getRequestURI());
+
+    Enumeration<String> headerNames = request.getHeaderNames();
+    String name;
+    while(headerNames.hasMoreElements()) {
+      name = headerNames.nextElement();
+      log.info("header: {}:{}", name, request.getHeader(name));
+    }
+    return true;
+  }*/
 
   @Override
   public void afterCompletion(HttpServletRequest request, HttpServletResponse response,

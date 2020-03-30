@@ -19,12 +19,16 @@
 package com.rackspacecloud.metrics.queryservice.configuration;
 
 import com.rackspacecloud.metrics.queryservice.services.ReposeHeaderFilter;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import java.util.List;
 
 /**
  * @author Geoff Bourne
@@ -32,12 +36,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * @since Mar 2017
  */
 
+@Slf4j
+@EnableWebSecurity
 public class CombinedSecurityConfig {
+
+    private final SecurityProperties securityProperties;
+
+    @Autowired
+    public CombinedSecurityConfig(SecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
+
     @Configuration
     @Order(1)
     public class GrafanaWebConfig extends WebSecurityConfigurerAdapter {
-        @Value("${security.whitelistedIpRange}")
-        private String whitelistedIpRange;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -46,26 +58,24 @@ public class CombinedSecurityConfig {
                     .csrf().disable()
                     .antMatcher("/grafana-query/**")
                     .authorizeRequests().antMatchers("/grafana-query/**")
-                    .hasIpAddress(whitelistedIpRange);
+                    .hasIpAddress(securityProperties.whitelistedIpRange);
         }
     }
 
     @Configuration
     public class ReposeWebConfig extends WebSecurityConfigurerAdapter {
-        @Value("${security.whitelistedRoles}")
-        private String[] whitelistedRoles;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+            log.debug("Configuring tenant web security");
             http.addFilterBefore(
                     new ReposeHeaderFilter(),
-                    UsernamePasswordAuthenticationFilter.class);
+                    BasicAuthenticationFilter.class);
             http.csrf().disable();
             http.antMatcher("/intelligence-format-query/**")
                     .authorizeRequests()
                     .antMatchers("/intelligence-format-query/**")
-                    .hasAnyRole(whitelistedRoles);
+                    .hasAnyRole(securityProperties.whitelistedRoles);
         }
     }
 }
-
