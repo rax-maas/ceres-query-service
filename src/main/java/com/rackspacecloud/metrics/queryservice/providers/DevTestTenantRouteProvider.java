@@ -5,6 +5,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DevTestTenantRouteProvider implements RouteProvider {
     private String tenantRoutingServiceUrl;
@@ -88,6 +89,6 @@ public class DevTestTenantRouteProvider implements RouteProvider {
 
     @Override
     public Collection<String> getMeasurements(String tenantId, RestTemplate restTemplate) {
-        return ImmutableList.of("devMeasurement1", "devMeasurement2", "devMeasurement3");
+        return List.of("devMeasurement1", "devMeasurement2", "devMeasurement3");
     }
 }

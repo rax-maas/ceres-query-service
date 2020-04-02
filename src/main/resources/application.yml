@@ -28,6 +28,17 @@ security:
 ---
 spring:
   profiles: development
+  http:
+    log-request-details=true
+
+org:
+  springframework:
+    web:
+      servlet:
+        mvc:
+          method:
+            annotation:
+              RequestMappingHandlerMapping=TRACE:
 
 rest-template:
   request-config:
@@ -43,7 +54,12 @@ tenant-routing-service:
 
 logging:
   level:
-    com.rackspacecloud: debug
+    com.rackspacecloud: DEBUG
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: TRACE
 
 management:
   endpoints:
