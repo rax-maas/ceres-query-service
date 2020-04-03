@@ -1,20 +1,15 @@
 package com.rackspacecloud.metrics.queryservice.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
@@ -24,12 +19,9 @@ import java.util.Enumeration;
  */
 @Slf4j
 @Profile("development")
-public class RequestLogging extends HandlerInterceptorAdapter implements EnvironmentAware {
-
-  Environment env;
+public class RequestLogging extends HandlerInterceptorAdapter {
 
   /* Additional unsafe logging */
-
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     log.info("request url:{}", request.getRequestURI());
@@ -50,10 +42,5 @@ public class RequestLogging extends HandlerInterceptorAdapter implements Environ
     log.info("Request completed: method={} path={}{} parameters={} status={}",
         request.getMethod(), request.getContextPath(), request.getServletPath(), request.getParameterMap(),
         response.getStatus());
-  }
-
-  @Override
-  public void setEnvironment(Environment environment) {
-  this.env = environment;
   }
 }
