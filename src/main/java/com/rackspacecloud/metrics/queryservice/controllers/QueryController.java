@@ -7,26 +7,16 @@ import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-import javax.websocket.server.PathParam;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.rackspacecloud.metrics.queryservice.services.ReposeHeaderFilter.HEADER_TENANT;
 
 @RestController
 @RequestMapping("")
@@ -56,16 +46,17 @@ public class QueryController {
     /**
      * End-user or intelligence queries for a specific tenant derived from the
      * repose header
+     * Use path variable instead of header or authentication principal to allow impersonation
      */
 
     /**
      * @param tenantId TenantID used for measurement lookup in tenant database
      * @return a list of measurements for tenant
      */
-    @GetMapping("/intelligence-format-query/measurements")
+    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurements")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements"})
     public List<?> intelligenceFormattedQueryGetMeasurements(
-            final @AuthenticationPrincipal String tenantId) { // Use repose tenantId
+            final @PathVariable String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}]",
                 "/intelligence-format-query/measurements", tenantId);
         return convertQueryResultToList(queryService.getMeasurementsForTenant(tenantId));
@@ -76,11 +67,11 @@ public class QueryController {
      * @param tenantId The id of the tenant
      * @return a list of measurement tags
      */
-    @GetMapping("/intelligence-format-query/measurement-tags")
+    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-tags")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-tags"})
     public List<?> intelligenceFormattedQueryGetMeasurementTags(
             final @RequestParam("measurement") String measurement,
-            final @AuthenticationPrincipal String tenantId) { // Use repose tenantId
+            final @PathVariable String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
                 "/intelligence-format-query/measurement-tags", tenantId, measurement);
         return convertQueryResultToList(queryService.getMeasurementTags(tenantId, measurement));
@@ -91,11 +82,11 @@ public class QueryController {
      * @param tenantId The id of the tenant
      * @return a list of fields for measurement
      */
-    @GetMapping("/intelligence-format-query/measurement-fields")
+    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-fields")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements-fields"})
     public List<?> intelligenceFormattedQueryGetMeasurementDescription(
             final @RequestParam("measurement") String measurement,
-            final @AuthenticationPrincipal String tenantId) { // Use repose tenantId
+            final @PathVariable String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
                 "/intelligence-format-query/measurement-fields", tenantId, measurement);
         return convertQueryResultToList(queryService.getMeasurementFields(tenantId, measurement));
@@ -108,14 +99,14 @@ public class QueryController {
      * @param tenantId The tenantID for the measurement (from repose)
      * @return data points for a particular measurement within a time range
      */
-    @GetMapping("/intelligence-format-query/measurement-series-by-time")
+    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-series-by-time")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-series-by-time"})
     public List<?> intelligenceFormattedQueryGetMeasurementSeriesByTime(
             final @RequestParam("measurement") String measurement,
             // ISO 8601
             final @RequestParam("begin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime begin,
             final @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime end,
-            final @AuthenticationPrincipal String tenantId) { // Use repose tenantId
+            final @PathVariable String tenantId) { // Use repose tenantId
 
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]" +
                 ", begin: [{}], end: [{}]",

@@ -1,8 +1,11 @@
 package com.rackspacecloud.metrics.queryservice.providers;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DevTestTenantRouteProvider implements RouteProvider {
     private String tenantRoutingServiceUrl;
@@ -86,8 +89,6 @@ public class DevTestTenantRouteProvider implements RouteProvider {
 
     @Override
     public Collection<String> getMeasurements(String tenantId, RestTemplate restTemplate) {
-        String requestUrl = String.format("%s/%s/measurements", tenantRoutingServiceUrl, tenantId);
-
-        return restTemplate.getForObject(requestUrl, Collection.class);
+        return List.of("devMeasurement1", "devMeasurement2", "devMeasurement3");
     }
 }
