@@ -226,6 +226,18 @@ Now, you can run `query-service` and use any REST client (for example, Insomnia)
 around with the service.
 - Open REST client `Insomnia` (or REST client tool of your choice)
     - use HTTP method `GET`
-    - url example: `http://localhost:8089/intelligence-format-query?db=ENCORE-MAAS-account-name-0&q=select * from MAAS_cpu where time >= now()-8h`
+    - url example: `http://localhost:8080/intelligence-format-query?db=ENCORE-MAAS-account-name-0&q=select * from MAAS_cpu where time >= now()-8h`
   
-  
+  Some notes on testing/developing with the security features enabled:
+    - When using Insomnia/curl/other local methods of testing, do not use loopback (localhost/127.0.0.1). Use your network IP address. (`ifconfig -a`)
+    Make sure that network ip address is covered with the whitelisted ip address range in the development profile.
+    - When calling grafana/admin style queries (multitenant) use port 8080 (where the query service runs)
+    - When calling intelligence style queries (single tenant) use port 8180 (repose). 
+    Repose (run ceres-test-infrastructure for repose) will provide token-based security.
+    Use curl to get your Rackspace test token.
+    ```
+  curl https://identity.api.rackspacecloud.com/v2.0/tokens  \
+      -X POST \
+      -d '{"auth":{"passwordCredentials":{"username":"mypersonaltestaccount","password":"mypassword"}}}' \
+      -H "Content-type: application/json" | python -m json.tool
+    ```
