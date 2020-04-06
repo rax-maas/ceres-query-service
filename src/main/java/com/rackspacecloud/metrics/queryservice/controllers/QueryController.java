@@ -30,15 +30,14 @@ public class QueryController {
     /**
      * Admin or support level query. Intended to be used by a grafana frontend.
      * Allow more free-form querying.
-     * @param dbName
-     * @param queryString
+     * @param dbName - the alphanumeric tenant ID
+     * @param queryString - an influxdb query
      * @return
      */
     @GetMapping("/grafana-query")
     @Timed(value = "query.service", extraTags = {"query.type","query.grafana"})
-    // TODO: test-generator does not provide numeric tenant ids so this validation will fail for test data
     public QueryResult query(
-            final @RequestParam(value = "db", required = true) /*@Valid @Pattern(regexp="-?\\d+")*/ String dbName, //dbName = tenantId
+            final @RequestParam(value = "db", required = true) String dbName, //dbName = tenantId
             final @RequestParam("q") String queryString) {
         return queryService.query(dbName, queryString);
     }
