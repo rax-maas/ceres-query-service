@@ -74,7 +74,7 @@ management:
         auto-create-db: true
 
 security:
-  whitelistedIpRange: "127.0.0.1/32"
+  whitelistedIpRange: "192.168.0.0/16"
   whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
 ---
 spring:

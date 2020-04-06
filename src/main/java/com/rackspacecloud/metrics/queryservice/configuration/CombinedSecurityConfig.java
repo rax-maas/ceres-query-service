@@ -53,12 +53,13 @@ public class CombinedSecurityConfig {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+            log.debug("Locking grafana to {}", securityProperties.getWhitelistedIpRange());
             http
                     .httpBasic().disable()
                     .csrf().disable()
                     .antMatcher("/grafana-query/**")
                     .authorizeRequests().antMatchers("/grafana-query/**")
-                    .hasIpAddress(securityProperties.whitelistedIpRange);
+                    .hasIpAddress(securityProperties.getWhitelistedIpRange());
         }
     }
 
@@ -75,7 +76,7 @@ public class CombinedSecurityConfig {
             http.antMatcher("/intelligence-format-query/**")
                     .authorizeRequests()
                     .antMatchers("/intelligence-format-query/**")
-                    .hasAnyRole(securityProperties.whitelistedRoles);
+                    .hasAnyRole(securityProperties.getWhitelistedRoles());
         }
     }
 }

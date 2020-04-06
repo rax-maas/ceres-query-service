@@ -1,7 +1,8 @@
 package com.rackspacecloud.metrics.queryservice.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,7 +10,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.Enumeration;
 
 /**
@@ -18,24 +18,20 @@ import java.util.Enumeration;
  * a request and its response to allow for easily locating within logs along with any trace IDs.
  */
 @Slf4j
+@Profile("development")
 public class RequestLogging extends HandlerInterceptorAdapter {
 
-  @Autowired
-  Environment env;
-
   /* Additional unsafe logging */
-
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    if (Arrays.asList(env.getActiveProfiles()).contains("development")) {
-      log.info("request url:{}", request.getRequestURI());
+    log.info("request url:{}", request.getRequestURI());
+    log.info("remoteHost: {}", request.getRemoteHost());
 
-      Enumeration<String> headerNames = request.getHeaderNames();
-      String name;
-      while (headerNames.hasMoreElements()) {
-        name = headerNames.nextElement();
-        log.info("header: {}:{}", name, request.getHeader(name));
-      }
+    Enumeration<String> headerNames = request.getHeaderNames();
+    String name;
+    while (headerNames.hasMoreElements()) {
+      name = headerNames.nextElement();
+      log.info("header: {}:{}", name, request.getHeader(name));
     }
     return true;
   }
@@ -47,5 +43,4 @@ public class RequestLogging extends HandlerInterceptorAdapter {
         request.getMethod(), request.getContextPath(), request.getServletPath(), request.getParameterMap(),
         response.getStatus());
   }
-
 }
