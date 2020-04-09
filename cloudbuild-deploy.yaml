@@ -41,7 +41,7 @@ steps:
       path: /root
 
   - id: COMPILE_AND_PUSH_CONTAINER
-    name: 'maven:3.6-jdk-8'
+    name: 'maven:3.6-jdk-11'
     env:
     - 'SHORT_SHA=$SHORT_SHA'
     - 'BRANCH_NAME=$BRANCH_NAME'

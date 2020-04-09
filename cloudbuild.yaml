@@ -22,7 +22,7 @@ steps:
       path: /root
 
   - id: TESTING
-    name: 'maven:3.6-jdk-8'
+    name: 'maven:3.6-jdk-11'
     args: ['mvn', '-B', 'test']
     volumes:
     - name: user.home
