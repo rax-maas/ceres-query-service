@@ -12,7 +12,7 @@
 
 ## How to test
 
-<How to test for verifying the changes specific to this PR?>
+<How to verify the changes specific to this PR?>
 
 # Why
 
