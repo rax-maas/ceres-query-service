@@ -53,7 +53,7 @@ public class QueryController {
      * @param tenantId TenantID used for measurement lookup in tenant database
      * @return a list of measurements for tenant
      */
-    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurements")
+    @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurements")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements"})
     public List<?> intelligenceFormattedQueryGetMeasurements(
             final @PathVariable String tenantId) { // Use repose tenantId
@@ -67,7 +67,7 @@ public class QueryController {
      * @param tenantId The id of the tenant
      * @return a list of measurement tags
      */
-    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-tags")
+    @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-tags")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-tags"})
     public List<?> intelligenceFormattedQueryGetMeasurementTags(
             final @RequestParam("measurement") String measurement,
@@ -82,7 +82,7 @@ public class QueryController {
      * @param tenantId The id of the tenant
      * @return a list of fields for measurement
      */
-    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-fields")
+    @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-fields")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements-fields"})
     public List<?> intelligenceFormattedQueryGetMeasurementDescription(
             final @RequestParam("measurement") String measurement,
@@ -99,7 +99,7 @@ public class QueryController {
      * @param tenantId The tenantID for the measurement (from repose)
      * @return data points for a particular measurement within a time range
      */
-    @GetMapping("/v1.0/tenant/{tenant}/intelligence-format-query/measurement-series-by-time")
+    @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-series-by-time")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-series-by-time"})
     public List<?> intelligenceFormattedQueryGetMeasurementSeriesByTime(
             final @RequestParam("measurement") String measurement,
