@@ -7,7 +7,7 @@ steps:
     # This is ugly because of
     # https://github.com/GoogleContainerTools/jib/issues/1500#issuecomment-466207421
   - id: FIX_DOCKER
-    name: gcr.io/cloud-builders/mvn
+    name: gcr.io/cloud-builders/gsutil
     waitFor: ['-']
     dir: /root
     entrypoint: bash
@@ -41,11 +41,13 @@ steps:
       path: /root
 
   - id: COMPILE_AND_PUSH_CONTAINER
-    name: 'gcr.io/cloud-builders/mvn'
+    name: 'maven:3.6-jdk-11'
     env:
     - 'SHORT_SHA=$SHORT_SHA'
     - 'BRANCH_NAME=$BRANCH_NAME'
     args:
+    - mvn
+    - -B
     - compile
     - jib:build
     - "-Dmaven.test.skip=true"
