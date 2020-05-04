@@ -30,15 +30,14 @@ public class QueryController {
 
     /**
      * Admin or support level query. Intended to be used by a grafana frontend.
-     * Grafana will append <code>/query</code> to the URL of the InfluxDB datasource configured.
      * Allow more free-form querying.
      * @param dbName - the alphanumeric tenant ID
      * @param queryString - an influxdb query
      * @return
      */
-    @GetMapping("/query")
+    @GetMapping("/grafana-query")
     @Timed(value = "query.service", extraTags = {"query.type","query.grafana"})
-    public QueryResult grafanaQuery(
+    public QueryResult query(
             final @RequestParam(value = "db", required = true) String dbName, //dbName = tenantId
             final @RequestParam("q") String queryString) {
         return queryService.query(dbName, queryString);
