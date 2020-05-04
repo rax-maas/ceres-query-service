@@ -4,19 +4,20 @@ import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
 import com.rackspacecloud.metrics.queryservice.exceptions.ErroredQueryResultException;
 import com.rackspacecloud.metrics.queryservice.services.QueryService;
 import io.micrometer.core.annotation.Timed;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("")
@@ -29,14 +30,15 @@ public class QueryController {
 
     /**
      * Admin or support level query. Intended to be used by a grafana frontend.
+     * Grafana will append <code>/query</code> to the URL of the InfluxDB datasource configured.
      * Allow more free-form querying.
      * @param dbName - the alphanumeric tenant ID
      * @param queryString - an influxdb query
      * @return
      */
-    @GetMapping("/grafana-query")
+    @GetMapping("/query")
     @Timed(value = "query.service", extraTags = {"query.type","query.grafana"})
-    public QueryResult query(
+    public QueryResult grafanaQuery(
             final @RequestParam(value = "db", required = true) String dbName, //dbName = tenantId
             final @RequestParam("q") String queryString) {
         return queryService.query(dbName, queryString);

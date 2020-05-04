@@ -28,8 +28,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import java.util.List;
-
 /**
  * @author Geoff Bourne
  * @author zacksh
@@ -57,8 +55,8 @@ public class CombinedSecurityConfig {
             http
                     .httpBasic().disable()
                     .csrf().disable()
-                    .antMatcher("/grafana-query/**")
-                    .authorizeRequests().antMatchers("/grafana-query/**")
+                    .antMatcher("/query/**")
+                    .authorizeRequests().antMatchers("/query/**")
                     .hasIpAddress(securityProperties.getWhitelistedIpRange());
         }
     }

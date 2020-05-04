@@ -1,5 +1,12 @@
 package com.rackspacecloud.metrics.queryservice;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.rackspacecloud.metrics.queryservice.controllers.GlobalExceptionHandler;
 import com.rackspacecloud.metrics.queryservice.controllers.QueryController;
 import com.rackspacecloud.metrics.queryservice.exceptions.InvalidQueryException;
@@ -17,13 +24,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = QueryController.class)
@@ -49,7 +49,7 @@ public class QueryControllerTest {
     public void query_validTenantIdAndPayloadReturnsListOfMaps() throws Exception {
         when(queryServiceImpl.query(anyString(), anyString())).thenReturn(new QueryResult());
 
-        QueryResult queryResult = controller.query("1234", "queryString");
+        QueryResult queryResult = controller.grafanaQuery("1234", "queryString");
 
         Assert.assertNotNull("output is null", queryResult);
     }
