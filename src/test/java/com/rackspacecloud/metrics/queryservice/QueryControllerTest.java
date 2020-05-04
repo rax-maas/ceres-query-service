@@ -49,7 +49,7 @@ public class QueryControllerTest {
     public void query_validTenantIdAndPayloadReturnsListOfMaps() throws Exception {
         when(queryServiceImpl.query(anyString(), anyString())).thenReturn(new QueryResult());
 
-        QueryResult queryResult = controller.query("1234", "queryString");
+        QueryResult queryResult = controller.grafanaQuery("1234", "queryString");
 
         Assert.assertNotNull("output is null", queryResult);
     }
