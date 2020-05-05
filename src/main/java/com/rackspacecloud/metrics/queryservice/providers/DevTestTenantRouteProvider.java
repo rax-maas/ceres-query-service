@@ -1,17 +1,25 @@
 package com.rackspacecloud.metrics.queryservice.providers;
 
-import com.google.common.collect.ImmutableList;
+import com.rackspacecloud.metrics.queryservice.services.InfluxDBPool;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import org.influxdb.InfluxDB;
+import org.influxdb.dto.BoundParameterQuery.QueryBuilder;
+import org.influxdb.dto.QueryResult;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 public class DevTestTenantRouteProvider implements RouteProvider {
-    private String tenantRoutingServiceUrl;
 
-    public DevTestTenantRouteProvider(String tenantRoutingServiceUrl) {
+    private final String stubbedInfluxDbUrl = "http://localhost:8086";
+    private final String stubbedInfluxDbName = "db_0";
+    private final String stubbedFullRetentionPolicy = "rp_5d";
+    private String tenantRoutingServiceUrl;
+    private final InfluxDBPool influxDBPool;
+
+    public DevTestTenantRouteProvider(String tenantRoutingServiceUrl,
+                                      InfluxDBPool influxDBPool) {
         this.tenantRoutingServiceUrl = tenantRoutingServiceUrl;
+        this.influxDBPool = influxDBPool;
     }
 
     /**
@@ -43,43 +51,43 @@ public class DevTestTenantRouteProvider implements RouteProvider {
         tenantRoutes.setTenantIdAndMeasurement(tenantIdAndMeasurement);
 
         tenantRoutes.getRoutes().put("full", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
-                "rp_5d",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
+            stubbedFullRetentionPolicy,
                 "5d"
         ));
 
         tenantRoutes.getRoutes().put("5m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
                 "rp_10d",
                 "10d"
         ));
 
         tenantRoutes.getRoutes().put("20m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
                 "rp_20d",
                 "20d"
         ));
 
         tenantRoutes.getRoutes().put("60m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
                 "rp_155d",
                 "155d"
         ));
 
         tenantRoutes.getRoutes().put("240m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
                 "rp_300d",
                 "300d"
         ));
 
         tenantRoutes.getRoutes().put("1440m", new TenantRoutes.TenantRoute(
-                "http://localhost:8086",
-                "db_0",
+            stubbedInfluxDbUrl,
+            stubbedInfluxDbName,
                 "rp_1825d",
                 "1825d"
         ));
@@ -89,6 +97,24 @@ public class DevTestTenantRouteProvider implements RouteProvider {
 
     @Override
     public Collection<String> getMeasurements(String tenantId, RestTemplate restTemplate) {
-        return List.of("devMeasurement1", "devMeasurement2", "devMeasurement3");
+        final InfluxDB client = influxDBPool.getInstance(stubbedInfluxDbUrl);
+        final QueryResult results = client.query(
+            QueryBuilder.newQuery("SHOW MEASUREMENTS")
+            .forDatabase(stubbedInfluxDbName)
+            .create()
+        );
+
+        if (results.hasError()) {
+            throw new IllegalStateException("Unable to retrieve measurements from InfluxDB: " +
+                results.getError());
+        }
+
+        // SHOW MEASUREMENTS always has one result, one series (measurements), with one column (name)
+        return results.getResults().get(0)
+            .getSeries().get(0)
+            .getValues()
+            .stream()
+            .map(row -> (String)row.get(0))
+            .collect(Collectors.toList());
     }
 }
