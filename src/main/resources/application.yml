@@ -74,7 +74,10 @@ management:
         auto-create-db: true
 
 security:
-  whitelistedIpRange: "192.168.0.0/16"
+  # grafana is told to access query-service via host.docker.internal,
+  # which gets routed by com.docker.vpnkit (on Mac's Docker Desktop)
+  # and finally contacts query-service via loopback
+  whitelistedIpRange: "127.0.0.1/32"
   whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
 ---
 spring:

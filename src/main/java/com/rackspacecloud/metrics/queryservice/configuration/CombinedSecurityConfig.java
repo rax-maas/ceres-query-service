@@ -55,8 +55,8 @@ public class CombinedSecurityConfig {
             http
                     .httpBasic().disable()
                     .csrf().disable()
-                    .antMatcher("/grafana-query/**")
-                    .authorizeRequests().antMatchers("/grafana-query/**")
+                    .antMatcher("/query/**")
+                    .authorizeRequests().antMatchers("/query/**")
                     .hasIpAddress(securityProperties.getWhitelistedIpRange());
         }
     }
