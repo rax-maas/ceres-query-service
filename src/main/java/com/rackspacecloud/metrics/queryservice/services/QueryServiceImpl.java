@@ -5,9 +5,17 @@ import com.rackspacecloud.metrics.queryservice.exceptions.InvalidQueryException;
 import com.rackspacecloud.metrics.queryservice.exceptions.RouteNotFoundException;
 import com.rackspacecloud.metrics.queryservice.providers.RouteProvider;
 import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BoundParameterQuery;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -15,13 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -33,6 +34,7 @@ public class QueryServiceImpl implements QueryService {
     private static final String PREFIX_FOR_SHOW_FIELDS_FOR_MEASUREMENT = "SHOW FIELD KEYS FROM ";
     private static final String PREFIX_FOR_SHOW_TAGS_FOR_MEASUREMENT = "SHOW TAG KEYS FROM ";
     private static final String PREFIX_FOR_SHOW_TAG_VALUES_FOR_GIVEN_KEY = "SHOW TAG VALUES FROM ";
+    private final InfluxDBPool influxDBPool;
 
     private ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap;
     private RouteProvider routeProvider;
@@ -41,14 +43,10 @@ public class QueryServiceImpl implements QueryService {
 
     @Autowired
     public QueryServiceImpl(
-            ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap,
+            InfluxDBPool influxDBPool,
             RestTemplate restTemplate,
             RouteProvider routeProvider) {
-
-        this.urlInfluxDBInstanceMap = urlInfluxDBInstanceMap;
-
-        this.urlInfluxDBInstanceMap.forEach((k,v) -> v.setLogLevel(InfluxDB.LogLevel.BASIC));
-
+        this.influxDBPool = influxDBPool;
         this.restTemplate = restTemplate;
         this.routeProvider = routeProvider;
     }
@@ -242,7 +240,7 @@ public class QueryServiceImpl implements QueryService {
     }
 
     private InfluxDB getInfluxDB(TenantRoutes.TenantRoute route) {
-        return urlInfluxDBInstanceMap.computeIfAbsent(route.getPath(), key -> InfluxDBFactory.connect(key));
+        return influxDBPool.getInstance(route.getPath());
     }
 
     private QueryResult getQueryResultForShowFieldsOrTagsKeysOrTagsValues(

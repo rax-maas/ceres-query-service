@@ -1,52 +1,61 @@
 package com.rackspacecloud.metrics.queryservice;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rackspacecloud.metrics.queryservice.exceptions.ErroredQueryResultException;
 import com.rackspacecloud.metrics.queryservice.exceptions.InvalidQueryException;
 import com.rackspacecloud.metrics.queryservice.exceptions.RouteNotFoundException;
 import com.rackspacecloud.metrics.queryservice.providers.RouteProvider;
 import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
+import com.rackspacecloud.metrics.queryservice.services.InfluxDBPool;
 import com.rackspacecloud.metrics.queryservice.services.QueryServiceImpl;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.QueryResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class QueryServiceImplTests {
-    @Mock
+    @MockBean
     private RouteProvider routeProvider;
 
-    @Mock
+    @MockBean
     private RestTemplate restTemplate;
 
     @Mock
-    ConcurrentMap<String, InfluxDB> urlInfluxDBInstanceMap;
+    private InfluxDB influxDB;
 
-    @InjectMocks
+    @MockBean
+    private InfluxDBPool influxDBPool;
+
+    @Autowired
     private QueryServiceImpl queryService;
 
     @Before
     public void setup(){
-        MockitoAnnotations.initMocks(this);
+        when(influxDBPool.getInstance(any()))
+            .thenReturn(influxDB);
     }
 
     @Test
@@ -242,9 +251,6 @@ public class QueryServiceImplTests {
         TenantRoutes routes = getTenantRoutes("1234", "measurement");
         when(routeProvider.getRoute(anyString(), anyString(), any())).thenReturn(routes);
 
-        InfluxDB influxDB = mock(InfluxDB.class);
-        when(urlInfluxDBInstanceMap.computeIfAbsent(anyString(), any())).thenReturn(influxDB);
-
         QueryResult queryResult = new QueryResult();
         queryResult.setError("Test measurements_erroredQueryResult_throwsErroredQueryResultException");
 
@@ -358,9 +364,6 @@ public class QueryServiceImplTests {
     private void mockedComponents(String tenantId, String measurement, QueryResult queryResult) {
         TenantRoutes routes = getTenantRoutes(tenantId, measurement);
         when(routeProvider.getRoute(anyString(), anyString(), any())).thenReturn(routes);
-
-        InfluxDB influxDB = mock(InfluxDB.class);
-        when(urlInfluxDBInstanceMap.computeIfAbsent(anyString(), any())).thenReturn(influxDB);
 
         when(influxDB.query(any())).thenReturn(queryResult);
     }
