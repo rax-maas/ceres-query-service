@@ -27,7 +27,7 @@ security:
   # Disable IP whitelisting in development/test since Spring Security doesn't easily
   # allow for whitelisting loopback addresses for both IPv4 and IPv6
   whitelistedIpRange: ""
-  whitelistedRoles: ["DEV_DEFAULT"]
+  whitelistedRoles: ["COMPUTE_DEFAULT"]
 
 ---
 spring:
@@ -81,7 +81,7 @@ security:
   # Disable IP whitelisting in development/test since Spring Security doesn't easily
   # allow for whitelisting loopback addresses for both IPv4 and IPv6
   whitelistedIpRange: ""
-  whitelistedRoles: ["DEV_DEFAULT"]
+  whitelistedRoles: ["COMPUTE_DEFAULT"]
 ---
 spring:
   profiles: production

@@ -153,7 +153,7 @@ When accessing the `/v1.0/tenant` APIs in a local development environment, you c
 To simulate the behavior of Repose, access the query service directly at port 8080 and pass the
 headers:
 - `X-Tenant-Id`
-- `X-Roles`, where development and test profiles default to allow "dev:default"
+- `X-Roles`, where development and test profiles default to allow "compute:default"
 
 To access the tenant APIs via Repose, ensure the `repose` service is started from the `test/instructure` bundle module and access the API via port 8180. The following header needs to be set:
 - `X-Auth-Token`: a valid Identity token
