@@ -1,6 +1,8 @@
 server:
   port: 8080
-
+spring:
+  profiles:
+    active: production
 ---
 spring:
   profiles: test
@@ -22,8 +24,10 @@ logging:
     com.rackspacecloud: debug
 
 security:
-  whitelistedIpRange: "127.0.0.1/32"
-  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
+  # Disable IP whitelisting in development/test since Spring Security doesn't easily
+  # allow for whitelisting loopback addresses for both IPv4 and IPv6
+  whitelistedIpRange: ""
+  whitelistedRoles: ["DEV_DEFAULT"]
 
 ---
 spring:
@@ -74,11 +78,10 @@ management:
         auto-create-db: true
 
 security:
-  # grafana is told to access query-service via host.docker.internal,
-  # which gets routed by com.docker.vpnkit (on Mac's Docker Desktop)
-  # and finally contacts query-service via loopback
-  whitelistedIpRange: "127.0.0.1/32"
-  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
+  # Disable IP whitelisting in development/test since Spring Security doesn't easily
+  # allow for whitelisting loopback addresses for both IPv4 and IPv6
+  whitelistedIpRange: ""
+  whitelistedRoles: ["DEV_DEFAULT"]
 ---
 spring:
   profiles: production
@@ -126,4 +129,4 @@ management:
 
 security:
   whitelistedIpRange: "10.40.0.0/14"
-  whitelistedRoles: ["ROLE_COMPUTE_DEFAULT","COMPUTE_DEFAULT"]
+  whitelistedRoles: ["COMPUTE_DEFAULT"]

@@ -23,10 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.Assert;
 
 /**
  * @author Geoff Bourne
@@ -38,10 +41,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class CombinedSecurityConfig {
 
+    private final Environment env;
     private final SecurityProperties securityProperties;
 
     @Autowired
-    public CombinedSecurityConfig(SecurityProperties securityProperties) {
+    public CombinedSecurityConfig(Environment env, SecurityProperties securityProperties) {
+        this.env = env;
         this.securityProperties = securityProperties;
     }
 
@@ -53,11 +58,25 @@ public class CombinedSecurityConfig {
         protected void configure(HttpSecurity http) throws Exception {
             log.debug("Locking grafana to {}", securityProperties.getWhitelistedIpRange());
             http
-                    .httpBasic().disable()
-                    .csrf().disable()
-                    .antMatcher("/query/**")
-                    .authorizeRequests().antMatchers("/query/**")
+                .httpBasic().disable()
+                .csrf().disable();
+
+            // narrow security filter chain scope for grafana access URLs
+            final HttpSecurity scoped = http.antMatcher("/query/**");
+
+            if (env.acceptsProfiles(Profiles.of("production"))) {
+                Assert.hasText(securityProperties.getWhitelistedIpRange(),
+                    "whitelistedIpRange is required");
+
+                scoped
+                    .authorizeRequests()
+                    .anyRequest()
                     .hasIpAddress(securityProperties.getWhitelistedIpRange());
+            } else {
+                scoped
+                    .authorizeRequests()
+                    .anyRequest().permitAll();
+            }
         }
     }
 
@@ -67,14 +86,20 @@ public class CombinedSecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             log.debug("Configuring tenant web security");
-            http.addFilterBefore(
-                    new ReposeHeaderFilter(),
-                    BasicAuthenticationFilter.class);
             http.csrf().disable();
-            http.antMatcher("/intelligence-format-query/**")
-                    .authorizeRequests()
-                    .antMatchers("/intelligence-format-query/**")
-                    .hasAnyRole(securityProperties.getWhitelistedRoles());
+
+            // narrow security filter chain scope for intelligence access URLs
+            http.antMatcher("/v1.0/tenant/**")
+                // extract authorization/role from repose headers
+                .addFilterBefore(
+                    new ReposeHeaderFilter(),
+                    BasicAuthenticationFilter.class
+                )
+                .authorizeRequests()
+                // applies to any request in this security filter chain scope
+                .anyRequest()
+                // and require an expected role
+                .hasAnyRole(securityProperties.getWhitelistedRoles());
         }
     }
 }

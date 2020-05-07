@@ -3,15 +3,19 @@ This service provides functionality to query metrics data. At this moment, it ju
 query service for raw-data only. Query for rolledup data is not built yet.
 
 ## API
-### Endpoint /query
+### `/query`
+
 * Method: `GET`
 * parameters
-    * `db` - value for this parameter is `tenantId`
+    * `db` - value for this parameter is the "db_" bucket routed for the tenant,measurement
     * `q` - this parameter contains the query string
     
 #### Example
 **Call from REST client:**
-`http://localhost:8089/query?db=ENCORE-MAAS-account-name-0&q=select * from MAAS_cpu where time >= now()-8h`
+```
+curl --request GET \
+  --url 'http://localhost:8080/query?db=db_0&q=select%20*%20from%20MAAS_cpu%20where%20time%20%3C%3D%20now()'
+```
 
 ##### Response for the given call
 ```
@@ -105,139 +109,51 @@ query service for raw-data only. Query for rolledup data is not built yet.
 }
 ```
 
-### Endpoint /intelligence-format-query
-This endpoint is provides nothing but formatted data for the same query result. In `/query` endpoint,
-you get the response as if you are getting it from InfluxDB. But, this endpoint wants same data in key-value pair.
- 
-* Method: `GET`
-* parameters
-    * `db` - value for this parameter is `tenantId`
-    * `q` - this parameter contains the query string
+### `/v1.0/tenant/{tenantId}/intelligence-format-query/measurements`
 
-#### Example
-**Call from REST client:**
-`http://localhost:8089/intelligence-format-query?db=ENCORE-MAAS-account-name-0&q=select * from MAAS_cpu where time >= now()-8h`
-##### Response for the given call
-  ```
-  [
-    {
-      "percentage_user_usage": 8622.0,
-      "accountType": "CORE",
-      "monitoringZone": "\"\"",
-      "deviceLabel": "\"dummy-device-label-id-0\"",
-      "entityId": "\"dummy-entity-id-id-0\"",
-      "percentage_system_usage": 30076.0,
-      "monitoringSystem": "\"MAAS\"",
-      "collectionName": "\"cpu\"",
-      "accountId": "\"dummy-account-id-id-0\"",
-      "percentage_idle": 12091.0,
-      "collectionLabel": "\"cpu-collection-label\"",
-      "name": "MAAS_cpu",
-      "tenantId": "CORE-MAAS-account-name-0",
-      "time": 1574815565000,
-      "checkId": "\"dummy-check-id-id-0\"",
-      "device": "\"id-0\"",
-      "account": "MAAS-account-name-0"
-    },
-    {
-      "percentage_user_usage": 27967.0,
-      "accountType": "ENCORE",
-      "monitoringZone": "\"\"",
-      "deviceLabel": "\"dummy-device-label-id-0\"",
-      "entityId": "\"dummy-entity-id-id-0\"",
-      "percentage_system_usage": 7331.0,
-      "monitoringSystem": "\"MAAS\"",
-      "collectionName": "\"cpu\"",
-      "accountId": "\"dummy-account-id-id-0\"",
-      "percentage_idle": 10062.0,
-      "collectionLabel": "\"cpu-collection-label\"",
-      "name": "MAAS_cpu",
-      "tenantId": "ENCORE-MAAS-account-name-0",
-      "time": 1574815565000,
-      "checkId": "\"dummy-check-id-id-0\"",
-      "device": "\"id-0\"",
-      "account": "MAAS-account-name-0"
-    },
-    {
-      "percentage_user_usage": 37602.0,
-      "accountType": "CORE",
-      "monitoringZone": "\"\"",
-      "deviceLabel": "\"dummy-device-label-id-1\"",
-      "entityId": "\"dummy-entity-id-id-1\"",
-      "percentage_system_usage": 12361.0,
-      "monitoringSystem": "\"MAAS\"",
-      "collectionName": "\"cpu\"",
-      "accountId": "\"dummy-account-id-id-1\"",
-      "percentage_idle": 42874.0,
-      "collectionLabel": "\"cpu-collection-label\"",
-      "name": "MAAS_cpu",
-      "tenantId": "CORE-MAAS-account-name-0",
-      "time": 1574815565000,
-      "checkId": "\"dummy-check-id-id-1\"",
-      "device": "\"id-1\"",
-      "account": "MAAS-account-name-0"
-    },
-    {
-      "percentage_user_usage": 27207.0,
-      "accountType": "ENCORE",
-      "monitoringZone": "\"\"",
-      "deviceLabel": "\"dummy-device-label-id-1\"",
-      "entityId": "\"dummy-entity-id-id-1\"",
-      "percentage_system_usage": 49922.0,
-      "monitoringSystem": "\"MAAS\"",
-      "collectionName": "\"cpu\"",
-      "accountId": "\"dummy-account-id-id-1\"",
-      "percentage_idle": 33289.0,
-      "collectionLabel": "\"cpu-collection-label\"",
-      "name": "MAAS_cpu",
-      "tenantId": "ENCORE-MAAS-account-name-0",
-      "time": 1574815565000,
-      "checkId": "\"dummy-check-id-id-1\"",
-      "device": "\"id-1\"",
-      "account": "MAAS-account-name-0"
-    }
-  ]
-  ```
+* Method: `GET`
+
+### `/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-tags`
+
+* Method: `GET`
+* Query parameters
+    * `measurement`
+
+### `/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-fields`
+
+* Method: `GET`
+* Query parameters
+    * `measurement`
+
+### `/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-series-by-time`
+
+* Method: `GET`
+* Query parameters
+    * `measurement`
+    * `begin` : ISO Date Format yyyy-MM-dd
+    * `end` : ISO Date Format yyyy-MM-dd
   
 ## Setup
-Install docker. Once done with that, you can use [`test-infrastructure`](https://github.com/racker/ceres-test-infrastructure) repository to install and run `Kafka`, `InfluxDB` and `Redis`. 
-Please follow instruction from that repository to install them. 
-Query service needs `InfluxDB` only. But to support this service we would 
-need `Kafka` as well to get the data into `InfluxDB`.
+
+Refer to the [ceres-bundle](https://github.com/racker/ceres-bundle) to get the "main" Docker infrastructure containers running. The query service requires access to at least the InfluxDB container with the development profile.
 
 ### Prerequisite
-To run or test Query Service locally:
-- Make sure you got `test-infrastructure` repo and you went through repo's docs. This will ensure that you have
-`kafka`, `redis` and `InfluxDB` running as docker containers.
-- Get repo [`test-data-generator`](https://github.com/racker/ceres-test-data-generator) and after building it. 
-  - Go to `test-data-generator` folder locally
-  - Run `java -jar target/test-data-generator-0.0.1-SNAPSHOT.jar` This will create raw test data into Kafka.
-- Run `ingestion-service` with `raw-data-consumer` and `development` profiles
-  - command to run `java -Dspring.profiles.active=raw-data-consumer,development -DTEST_KAFKA_BOOTSTRAP_SERVERS=localhost:9092 -jar target/ingestion-service-0.0.1-SNAPSHOT.jar` This should create data in `InfluxDB` and now you should be able to run the `query-service` to fetch data.
+- Generate some test data into Kafka by running the `test/data-generator` module [in the test directory of the bundle](https://github.com/racker/ceres-bundle/tree/master/test) by using `mvn spring-boot-:run`
+- In the [apps directory of the bundle](https://github.com/racker/ceres-bundle/tree/master/apps) go into the `ingestion-service` and run it using `mvn spring-boot:run`.
 
 Now, you should have some data to play with.
-- On terminal window, run command `docker exec -it influxdb influx` to get to `influx-cli`
+- On terminal window, run command `docker exec -it influxdb influx` to access the `influx-cli`
 - Run `use db_0` to use database `db-0`
 - Run `select * from MAAS_cpu limit 10` to get some records, so that we can get `tenantId` to query
 - When you have some results showing up for the query, look for the column `tenantId` and 
-grab one `tenantId` from the rows. For example: `ENCORE-MAAS-account-name-0`
+grab one `tenantId` from the rows. For example: `MAAS-account-name-0`
 
-Now, you can run `query-service` and use any REST client (for example, Insomnia) to play
-around with the service.
-- Open REST client `Insomnia` (or REST client tool of your choice)
-    - use HTTP method `GET`
-    - url example: `http://localhost:8080/intelligence-format-query?db=ENCORE-MAAS-account-name-0&q=select * from MAAS_cpu where time >= now()-8h`
-  
-  Some notes on testing/developing with the security features enabled:
-    - When using Insomnia/curl/other local methods of testing, do not use loopback (localhost/127.0.0.1). Use your network IP address. (`ifconfig -a`)
-    Make sure that network ip address is covered with the whitelisted ip address range in the development profile.
-    - When calling grafana/admin style queries (multitenant) use port 8080 (where the query service runs)
-    - When calling intelligence style queries (single tenant) use port 8180 (repose). 
-    Repose (run ceres-test-infrastructure for repose) will provide token-based security.
-    Use curl to get your Rackspace test token.
-    ```
-  curl https://identity.api.rackspacecloud.com/v2.0/tokens  \
-      -X POST \
-      -d '{"auth":{"passwordCredentials":{"username":"mypersonaltestaccount","password":"mypassword"}}}' \
-      -H "Content-type: application/json" | python -m json.tool
-    ```
+When accessing the `/v1.0/tenant` APIs in a local development environment, you can simulate the behavior of Repose or make the invocation via Repose.
+
+To simulate the behavior of Repose, access the query service directly at port 8080 and pass the
+headers:
+- `X-Tenant-Id`
+- `X-Roles`, where development and test profiles default to allow "dev:default"
+
+To access the tenant APIs via Repose, ensure the `repose` service is started from the `test/instructure` bundle module and access the API via port 8180. The following header needs to be set:
+- `X-Auth-Token`: a valid Identity token

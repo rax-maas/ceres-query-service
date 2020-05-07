@@ -1,1 +1,9 @@
+
+### Intelligence style query
 GET http://localhost:8080/v1.0/tenant/{{tenantId}}/intelligence-format-query/measurements
+X-Tenant-Id: {{tenantId}}
+X-Roles: {{roles}}
+
+### Grafana style query
+GET http://localhost:8080/query?db=db_0&q=select%20*%20from%20MAAS_cpu%20where%20time%20%3C%3D%20now()
+
