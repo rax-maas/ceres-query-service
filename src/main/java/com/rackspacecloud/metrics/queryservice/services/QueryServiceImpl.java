@@ -98,44 +98,41 @@ public class QueryServiceImpl implements QueryService {
     public QueryResult getMeasurementTags(String tenantId, String measurement) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
-        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW TAG KEYS from $measurement")
-                .forDatabase(route.getDatabaseName())
-                .bind("measurement", measurement)
-                .create();
+        Query query = BoundParameterQuery.QueryBuilder.newQuery(
+            String.format("%s %s", PREFIX_FOR_SHOW_TAGS_FOR_MEASUREMENT, measurement))
+            .forDatabase(route.getDatabaseName())
+            .create();
 
         InfluxDB influxDB = getInfluxDB(route);
-        QueryResult results = influxDB.query(query);
-        return results;
+        return influxDB.query(query);
     }
 
     @Override
     public QueryResult getMeasurementFields(String tenantId, String measurement) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
-        Query query = BoundParameterQuery.QueryBuilder.newQuery("SHOW FIELD KEYS from $measurement")
-                .forDatabase(route.getDatabaseName())
-                .bind("measurement", measurement)
-                .create();
+        Query query = BoundParameterQuery.QueryBuilder.newQuery(
+            String.format("%s %s", PREFIX_FOR_SHOW_FIELDS_FOR_MEASUREMENT, measurement))
+            .forDatabase(route.getDatabaseName())
+            .create();
 
         InfluxDB influxDB = getInfluxDB(route);
-        QueryResult results = influxDB.query(query);
-        return results;
+        return influxDB.query(query);
     }
 
     @Override
     public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
-        Query query = BoundParameterQuery.QueryBuilder.newQuery("SELECT * from $measurement where timestamp>=$begin and timestamp<=$end")
-                .forDatabase(route.getDatabaseName())
-                .bind("measurement", measurement)
-                .bind("begin", begin)
-                .bind("end", end)
-                .create();
+        Query query = BoundParameterQuery.QueryBuilder.newQuery(
+            String.format("SELECT * from %s where timestamp>=$begin and timestamp<=$end", measurement))
+            .forDatabase(route.getDatabaseName())
+            .bind("begin", begin)
+            .bind("end", end)
+            .create();
 
         InfluxDB influxDB = getInfluxDB(route);
-        QueryResult results = influxDB.query(query);
-        return results;
+        return influxDB.query(query);
     }
 
     @Override

@@ -72,7 +72,7 @@ public class QueryController {
     @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-tags")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurement-tags"})
     public List<?> intelligenceFormattedQueryGetMeasurementTags(
-            final @RequestParam("measurement") String measurement,
+            final @RequestParam String measurement,
             final @PathVariable String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
                 "/intelligence-format-query/measurement-tags", tenantId, measurement);
@@ -87,7 +87,7 @@ public class QueryController {
     @GetMapping("/v1.0/tenant/{tenantId}/intelligence-format-query/measurement-fields")
     @Timed(value = "query.service", extraTags = {"query.type","query.intelligence.measurements-fields"})
     public List<?> intelligenceFormattedQueryGetMeasurementDescription(
-            final @RequestParam("measurement") String measurement,
+            final @RequestParam String measurement,
             final @PathVariable String tenantId) { // Use repose tenantId
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]",
                 "/intelligence-format-query/measurement-fields", tenantId, measurement);
@@ -106,8 +106,8 @@ public class QueryController {
     public List<?> intelligenceFormattedQueryGetMeasurementSeriesByTime(
             final @RequestParam("measurement") String measurement,
             // ISO 8601
-            final @RequestParam("begin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime begin,
-            final @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime end,
+            final @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
+            final @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
             final @PathVariable String tenantId) { // Use repose tenantId
 
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]" +
@@ -128,14 +128,16 @@ public class QueryController {
 
         List<QueryDomainOutput> outputs = new ArrayList<>();
 
-        for(QueryResult.Result result : results){
-            for(QueryResult.Series series : result.getSeries()){
-                QueryDomainOutput output = new QueryDomainOutput();
-                output.setName(series.getName());
-                output.setColumns(series.getColumns());
-                output.setTags(series.getTags());
-                output.setValuesCollection(series.getValues());
-                outputs.add(output);
+        for (QueryResult.Result result : results) {
+            if (result.getSeries() != null) {
+                for (QueryResult.Series series : result.getSeries()) {
+                    QueryDomainOutput output = new QueryDomainOutput();
+                    output.setName(series.getName());
+                    output.setColumns(series.getColumns());
+                    output.setTags(series.getTags());
+                    output.setValuesCollection(series.getValues());
+                    outputs.add(output);
+                }
             }
         }
 
