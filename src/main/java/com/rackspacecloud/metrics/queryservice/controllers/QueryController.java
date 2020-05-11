@@ -4,14 +4,13 @@ import com.rackspacecloud.metrics.queryservice.domains.QueryDomainOutput;
 import com.rackspacecloud.metrics.queryservice.exceptions.ErroredQueryResultException;
 import com.rackspacecloud.metrics.queryservice.services.QueryService;
 import io.micrometer.core.annotation.Timed;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -106,8 +105,8 @@ public class QueryController {
     public List<?> intelligenceFormattedQueryGetMeasurementSeriesByTime(
             final @RequestParam("measurement") String measurement,
             // ISO 8601
-            final @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
-            final @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            final @RequestParam Instant begin,
+            final @RequestParam Instant end,
             final @PathVariable String tenantId) { // Use repose tenantId
 
         log.debug("Called url:[{}] with tenantId: [{}], measurement: [{}]" +
@@ -119,7 +118,7 @@ public class QueryController {
     }
 
     private List<?> convertQueryResultToList(QueryResult queryResult) {
-        if(queryResult.hasError()){
+        if (queryResult.hasError()){
             String error = queryResult.getError();
             throw new ErroredQueryResultException("Query error: [" + error + "]");
         }
@@ -129,6 +128,9 @@ public class QueryController {
         List<QueryDomainOutput> outputs = new ArrayList<>();
 
         for (QueryResult.Result result : results) {
+            if (result.hasError()) {
+                throw new ErroredQueryResultException("Query error: [" + result.getError() + "]");
+            }
             if (result.getSeries() != null) {
                 for (QueryResult.Series series : result.getSeries()) {
                     QueryDomainOutput output = new QueryDomainOutput();

@@ -1,9 +1,7 @@
 package com.rackspacecloud.metrics.queryservice.services;
 
+import java.time.Instant;
 import org.influxdb.dto.QueryResult;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 public interface QueryService {
 
@@ -13,7 +11,7 @@ public interface QueryService {
 
     QueryResult getMeasurementFields(String tenantId, String measurement);
 
-    QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end);
+    QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, Instant begin, Instant end);
 
     // general-purpose grafana/admin access
     QueryResult query(String dbName, String queryString);

@@ -14,9 +14,9 @@ import com.rackspacecloud.metrics.queryservice.services.InfluxDBPool;
 import com.rackspacecloud.metrics.queryservice.services.QueryServiceImpl;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -338,13 +338,13 @@ public class QueryServiceImplTests {
 
         series.setColumns(columns);
         series.setValues(values);
-        result.setSeries(Arrays.asList(series));
+        result.setSeries(Collections.singletonList(series));
         QueryResult expectedQueryResult = new QueryResult();
-        expectedQueryResult.setResults(new ArrayList<>(Arrays.asList(result)));
+        expectedQueryResult.setResults(new ArrayList<>(Collections.singletonList(result)));
         mockedComponents("1234", "jvm_memory_used", expectedQueryResult);
 
         QueryResult qr = queryService.getMeasurementSeriesForTimeInterval("1234", "jvm_memory_used",
-                LocalDateTime.now().minusHours(6), LocalDateTime.now());
+                Instant.now().minusSeconds(6 * 60 * 60 /*6 hours*/), Instant.now());
 
         QueryResult.Series actualSeries = qr.getResults().get(0).getSeries().get(0);
 
