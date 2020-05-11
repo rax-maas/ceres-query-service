@@ -130,8 +130,8 @@ curl --request GET \
 * Method: `GET`
 * Query parameters
     * `measurement`
-    * `begin` : ISO Date Format yyyy-MM-dd
-    * `end` : ISO Date Format yyyy-MM-dd
+    * `begin` : ISO Date Format yyyy-MM-ddThh:mm
+    * `end` : ISO Date Format yyyy-MM-ddThh:mm
   
 ## Setup
 
