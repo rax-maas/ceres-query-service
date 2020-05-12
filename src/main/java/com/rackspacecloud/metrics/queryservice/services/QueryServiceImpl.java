@@ -6,7 +6,7 @@ import com.rackspacecloud.metrics.queryservice.exceptions.RouteNotFoundException
 import com.rackspacecloud.metrics.queryservice.providers.RouteProvider;
 import com.rackspacecloud.metrics.queryservice.providers.TenantRoutes;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -121,14 +121,14 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, LocalDateTime begin, LocalDateTime end) {
+    public QueryResult getMeasurementSeriesForTimeInterval(String tenantId, String measurement, Instant begin, Instant end) {
         TenantRoutes.TenantRoute route = getTenantRoutes(tenantId, measurement);
 
         Query query = BoundParameterQuery.QueryBuilder.newQuery(
-            String.format("SELECT * from %s where timestamp>=$begin and timestamp<=$end", measurement))
+            String.format("SELECT * from %s where time >= $begin and time <= $end", measurement))
             .forDatabase(route.getDatabaseName())
-            .bind("begin", begin)
-            .bind("end", end)
+            .bind("begin", DateTimeFormatter.ISO_INSTANT.format(begin))
+            .bind("end", DateTimeFormatter.ISO_INSTANT.format(end))
             .create();
 
         InfluxDB influxDB = getInfluxDB(route);
