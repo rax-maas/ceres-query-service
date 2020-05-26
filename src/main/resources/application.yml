@@ -1,3 +1,5 @@
+security:
+  whitelistedRoles: ["COMPUTE_DEFAULT", "CUSTOMER_ADMIN"]
 server:
   port: 8080
 spring:
@@ -27,13 +29,12 @@ security:
   # Disable IP whitelisting in development/test since Spring Security doesn't easily
   # allow for whitelisting loopback addresses for both IPv4 and IPv6
   whitelistedIpRange: ""
-  whitelistedRoles: ["COMPUTE_DEFAULT"]
 
 ---
 spring:
   profiles: development
   http:
-    log-request-details=true
+    log-request-details: true
 
 org:
   springframework:
@@ -42,7 +43,7 @@ org:
         mvc:
           method:
             annotation:
-              RequestMappingHandlerMapping=TRACE:
+              RequestMappingHandlerMapping: TRACE
 
 rest-template:
   request-config:
@@ -81,7 +82,6 @@ security:
   # Disable IP whitelisting in development/test since Spring Security doesn't easily
   # allow for whitelisting loopback addresses for both IPv4 and IPv6
   whitelistedIpRange: ""
-  whitelistedRoles: ["COMPUTE_DEFAULT"]
 ---
 spring:
   profiles: production
@@ -129,4 +129,3 @@ management:
 
 security:
   whitelistedIpRange: "10.40.0.0/14"
-  whitelistedRoles: ["COMPUTE_DEFAULT"]
